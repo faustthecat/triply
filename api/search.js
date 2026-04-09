@@ -32,7 +32,10 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("SEARCH API ERROR:", response.status, errorText);
-      return res.status(response.status).json({ error: "Search lookup failed" });
+      return res.status(response.status).json({
+        error: "Search lookup failed",
+        details: errorText
+      });
     }
 
     const data = await response.json();
@@ -45,6 +48,6 @@ export default async function handler(req, res) {
     return res.status(200).json(stops);
   } catch (e) {
     console.error("SEARCH ERROR:", e);
-    return res.status(500).json({ error: "Search failed" });
+    return res.status(500).json({ error: "Search failed", details: e.message });
   }
 }

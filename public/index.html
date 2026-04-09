@@ -300,6 +300,28 @@
       });
     }
 
+    async function fetchJsonOrThrow(url, fallbackMessage) {
+      const res = await fetch(url);
+      let payload = null;
+
+      try {
+        payload = await res.json();
+      } catch (error) {
+        payload = null;
+      }
+
+      if (!res.ok) {
+        const message =
+          payload?.details ||
+          payload?.error ||
+          payload?.message ||
+          fallbackMessage;
+        throw new Error(message);
+      }
+
+      return payload;
+    }
+
     async function load() {
       const stopId = stopIdInput.value.trim();
 
@@ -315,13 +337,10 @@
       setLoadingState(loadButton, true);
 
       try {
-        const res = await fetch("/api/departures?stopId=" + encodeURIComponent(stopId));
-
-        if (!res.ok) {
-          throw new Error("Nepodarilo se nacist odjezdy.");
-        }
-
-        const data = await res.json();
+        const data = await fetchJsonOrThrow(
+          "/api/departures?stopId=" + encodeURIComponent(stopId),
+          "Nepodarilo se nacist odjezdy."
+        );
         const departures =
           data.departures ||
           data[0]?.departures ||
@@ -353,13 +372,10 @@
           try {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
-            const res = await fetch("/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon));
-
-            if (!res.ok) {
-              throw new Error("Nepodarilo se nacist okoli zastavky.");
-            }
-
-            const stops = await res.json();
+            const stops = await fetchJsonOrThrow(
+              "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon),
+              "Nepodarilo se nacist okoli zastavky."
+            );
 
             if (!Array.isArray(stops) || !stops.length) {
               setStatus("V okoli nebyly nalezeny zadne zastavky.", true);
@@ -437,13 +453,10 @@
       setSearchStatus("Hledam zastavky...");
 
       try {
-        const res = await fetch("/api/search?name=" + encodeURIComponent(query));
-
-        if (!res.ok) {
-          throw new Error("Vyhledavani zastavek selhalo.");
-        }
-
-        const data = await res.json();
+        const data = await fetchJsonOrThrow(
+          "/api/search?name=" + encodeURIComponent(query),
+          "Vyhledavani zastavek selhalo."
+        );
         renderSearchResults(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("SEARCH ERROR:", error);
