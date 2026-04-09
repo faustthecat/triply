@@ -7,10 +7,12 @@
 <body>
   <h1>Triply 🚏</h1>
 
-  <input id="stopId" placeholder="Stop ID (např. U699Z1P)" />
-  <button onclick="load()">Load</button>
   <button onclick="loadNearest()">Nearest stop</button>
   <ul id="list"></ul>
+
+  <input id="search" placeholder="Search stop..." oninput="searchStop()" />
+  <ul id="results"></ul>
+  <button onclick="load()">Load</button>
 
   <script>
     async function load() {
