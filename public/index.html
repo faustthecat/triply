@@ -7,6 +7,11 @@
 <body>
   <h1>Triply 🚏</h1>
 
+  <input id="search" placeholder="Search stop..." oninput="searchStop()" />
+  <ul id="results"></ul>
+
+  <button onclick="loadNearest()">Nearest stop</button>
+  
   <input id="stopId" placeholder="Stop ID (např. U699Z1P)" />
   <button onclick="load()">Load</button>
 
@@ -29,3 +34,42 @@
   </script>
 </body>
 </html>
+
+async function loadNearest() {
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    const res = await fetch(`/api/stops?lat=${lat}&lon=${lon}`);
+    const stops = await res.json();
+
+    const nearest = stops[0];
+    document.getElementById("stopId").value = nearest.id;
+
+    load();
+  });
+}
+
+async function searchStop() {
+  const q = document.getElementById("search").value;
+
+  if (q.length < 2) return;
+
+  const res = await fetch(`/api/search?name=${q}`);
+  const data = await res.json();
+
+  const results = document.getElementById("results");
+  results.innerHTML = "";
+
+  data.forEach(s => {
+    const li = document.createElement("li");
+    li.textContent = s.name;
+
+    li.onclick = () => {
+      document.getElementById("stopId").value = s.id;
+      load();
+    };
+
+    results.appendChild(li);
+  });
+}
