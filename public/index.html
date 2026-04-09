@@ -250,7 +250,7 @@
         <h2 id="search-heading">Najit zastavku</h2>
         <div class="field">
           <label for="search">Nazev zastavky</label>
-          <input id="search" placeholder="Zacni psat nazev zastavky" autocomplete="off" />
+          <input id="search" placeholder="Zacni psat nazev zastavky" autocomplete="on" />
         </div>
         <div id="searchStatus" class="status" aria-live="polite"></div>
         <ul id="results" aria-label="Vysledky hledani"></ul>
@@ -476,7 +476,7 @@
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
             const stops = await fetchJsonOrThrow(
-              "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon) + "&limit=3",
+              "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon) + "&limit=10",
               "Nepodarilo se nacist okoli zastavky."
             );
 
