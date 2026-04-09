@@ -1,1 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Triply</title>
+</head>
+<body>
+  <h1>Triply 🚏</h1>
 
+  <input id="stopId" placeholder="Stop ID (např. U699Z1P)" />
+  <button onclick="load()">Load</button>
+
+  <ul id="list"></ul>
+
+  <script>
+    async function load() {
+      const stopId = document.getElementById("stopId").value;
+      const res = await fetch(`/api/departures?stopId=${stopId}`);
+      const data = await res.json();
+
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+
+      data.departures.forEach(d => {
+        const li = document.createElement("li");
+        li.textContent =
+          `${d.route.short_name} → ${d.trip.headsign} (${d.departure_timestamp.predicted})`;
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
