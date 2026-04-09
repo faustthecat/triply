@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     // 🔍 TEST MODE
     if (req.query.test) {
       const response = await fetch(
-        `https://api.golemio.cz/v2/pid/stops?limit=5`,
+        `https://api.golemio.cz/v2/pid/stops`,
         {
           headers: {
             "X-Access-Token": process.env.GOLEMIO_KEY
