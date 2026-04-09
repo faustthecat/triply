@@ -183,6 +183,19 @@
       outline: none;
     }
 
+    .search-result-title {
+      display: block;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .search-result-subtitle {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
     .muted {
       color: var(--muted);
     }
@@ -418,11 +431,22 @@
         const li = document.createElement("li");
         li.className = "search-result";
         li.tabIndex = 0;
-        li.textContent = stop.name || stop.id || "Neznama zastavka";
+        const title = document.createElement("span");
+        title.className = "search-result-title";
+        title.textContent = stop.name || stop.fullName || stop.id || "Neznama zastavka";
+
+        const subtitle = document.createElement("span");
+        subtitle.className = "search-result-subtitle";
+        subtitle.textContent = stop.subtitle || (stop.fullName && stop.fullName !== stop.name ? stop.fullName : stop.id || "");
+
+        li.appendChild(title);
+        if (subtitle.textContent) {
+          li.appendChild(subtitle);
+        }
 
         const selectStop = () => {
           stopIdInput.value = stop.id || "";
-          currentStop.textContent = "Zastavka: " + (stop.name || stop.id || "neznama");
+          currentStop.textContent = "Zastavka: " + (stop.fullName || stop.name || stop.id || "neznama");
           currentStop.classList.remove("muted");
           results.innerHTML = "";
           setSearchStatus("");
