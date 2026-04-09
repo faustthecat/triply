@@ -23,14 +23,16 @@
   <input id="stopId" placeholder="Stop ID (např. U699Z1P)" />
   <button onclick="load()">Load</button>
   <button onclick="loadNearest()">Nearest stop</button>
-
+  
+  <h3 id="currentStop"></h3>
+  
   <h2>Departures</h2>
   <ul id="list"></ul>
 
   <script>
     async function load() {
       const stopId =
-        document.getElementById("stopId").value || "U699Z1P";
+        document.getElementById("currentStop").textContent = "Stop: " + stopId;
 
       console.log("Loading stop:", stopId);
 
@@ -87,8 +89,10 @@
         }
 
         const nearest = stops[0];
+        
         document.getElementById("stopId").value = nearest.id;
-
+        document.getElementById("currentStop").textContent = "Stop: " + nearest.name;
+        
         load();
       });
     }
@@ -110,6 +114,9 @@
 
         li.onclick = () => {
           document.getElementById("stopId").value = s.id;
+          document.getElementById("currentStop").textContent =
+            "Stop: " + s.name;
+        
           results.innerHTML = "";
           load();
         };
