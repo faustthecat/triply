@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   const response = await fetch(
-    `https://api.golemio.cz/v2/pid/departureboards?stopId=${stopId}&limit=10`,
+    `https://api.golemio.cz/v2/pid/departureboards?ids=${stopId}&limit=10`,
     {
       headers: {
         "X-Access-Token": process.env.GOLEMIO_KEY
