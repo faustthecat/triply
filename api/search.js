@@ -1,9 +1,7 @@
 function parseStop(feature) {
-  const properties = feature?.properties || {};
-
   return {
-    id: properties.id,
-    name: properties.name
+    id: feature?.id || feature?.gtfs_id || feature?.stop_id,
+    name: feature?.name || feature?.stop_name
   };
 }
 
@@ -20,10 +18,11 @@ export default async function handler(req, res) {
     }
 
     const params = new URLSearchParams({
-      names: name
+      names: name,
+      limit: "10"
     });
 
-    const response = await fetch("https://api.golemio.cz/v2/pid/stops?" + params.toString(), {
+    const response = await fetch("https://api.golemio.cz/v2/pid/departureboards?" + params.toString(), {
       headers: {
         "X-Access-Token": process.env.GOLEMIO_KEY
       }
@@ -39,11 +38,24 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    const features = Array.isArray(data?.features) ? data.features : [];
+    const rawStops =
+      data?.stops ||
+      data?.data?.stops ||
+      data?.[0]?.stops ||
+      [];
 
-    const stops = features
+    const deduped = new Map();
+
+    rawStops
       .map(parseStop)
-      .filter((stop) => stop.id && stop.name);
+      .filter((stop) => stop.id && stop.name)
+      .forEach((stop) => {
+        if (!deduped.has(stop.id)) {
+          deduped.set(stop.id, stop);
+        }
+      });
+
+    const stops = Array.from(deduped.values());
 
     return res.status(200).json(stops);
   } catch (e) {
