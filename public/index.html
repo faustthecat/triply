@@ -1,129 +1,470 @@
 <!DOCTYPE html>
-<html>
+<html lang="cs">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Triply</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input { padding: 8px; margin: 5px; }
-    button { padding: 8px; margin: 5px; }
-    li { margin: 4px 0; }
+    :root {
+      color-scheme: light;
+      --bg: #f4efe6;
+      --surface: #fffaf2;
+      --surface-strong: #fff;
+      --text: #1f2933;
+      --muted: #52606d;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --border: #d9e2ec;
+      --shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+      --danger: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      font-family: "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 28%),
+        linear-gradient(180deg, #f9f5ee 0%, var(--bg) 100%);
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 28px;
+      border: 1px solid rgba(217, 226, 236, 0.8);
+      border-radius: 24px;
+      background: rgba(255, 250, 242, 0.92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .stack {
+      display: grid;
+      gap: 24px;
+      margin-top: 28px;
+    }
+
+    .panel {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface-strong);
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 1.15rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input,
+    button {
+      font: inherit;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    input:focus {
+      outline: 2px solid rgba(15, 118, 110, 0.2);
+      border-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      padding: 11px 16px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    button:hover {
+      background: var(--accent-strong);
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background: #dcefe9;
+      color: var(--accent-strong);
+    }
+
+    button.secondary:hover {
+      background: #cbe7df;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      transform: none;
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 14px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .current-stop {
+      margin: 0 0 14px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    ul {
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+
+    li + li {
+      margin-top: 10px;
+    }
+
+    .search-result {
+      cursor: pointer;
+    }
+
+    .search-result:hover,
+    .search-result:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Triply 🚏</h1>
+  <main>
+    <h1>Triply</h1>
+    <p>Rychly prehled odjezdu z vybrane zastavky PID.</p>
 
-  <!-- Search -->
-  <input id="search" placeholder="Search stop..." oninput="searchStop()" />
-  <ul id="results"></ul>
+    <div class="stack">
+      <section class="panel" aria-labelledby="search-heading">
+        <h2 id="search-heading">Najit zastavku</h2>
+        <div class="field">
+          <label for="search">Nazev zastavky</label>
+          <input id="search" placeholder="Zacni psat nazev zastavky" autocomplete="off" />
+        </div>
+        <div id="searchStatus" class="status" aria-live="polite"></div>
+        <ul id="results" aria-label="Vysledky hledani"></ul>
+      </section>
 
-  <hr/>
-
-  <!-- Manual -->
-  <input id="stopId" placeholder="Stop ID (např. U699Z1P)" />
-  <button onclick="load()">Load</button>
-  <button onclick="loadNearest()">Nearest stop</button>
-  
-  <h3 id="currentStop"></h3>
-  
-  <h2>Departures</h2>
-  <ul id="list"></ul>
+      <section class="panel" aria-labelledby="departures-heading">
+        <h2 id="departures-heading">Odjezdy</h2>
+        <div class="field">
+          <label for="stopId">ID zastavky</label>
+          <input id="stopId" placeholder="Napr. U699Z1P" />
+        </div>
+        <div class="actions">
+          <button id="loadButton" type="button">Nacist odjezdy</button>
+          <button id="nearestButton" type="button" class="secondary">Nejblizsi zastavka</button>
+        </div>
+        <p id="currentStop" class="current-stop muted">Zatim neni vybrana zadna zastavka.</p>
+        <div id="status" class="status" aria-live="polite"></div>
+        <ul id="list" aria-label="Seznam odjezdu"></ul>
+      </section>
+    </div>
+  </main>
 
   <script>
-    async function load() {
-      const stopId =
-        document.getElementById("currentStop").textContent = "Stop: " + stopId;
+    const searchInput = document.getElementById("search");
+    const stopIdInput = document.getElementById("stopId");
+    const results = document.getElementById("results");
+    const list = document.getElementById("list");
+    const status = document.getElementById("status");
+    const searchStatus = document.getElementById("searchStatus");
+    const currentStop = document.getElementById("currentStop");
+    const loadButton = document.getElementById("loadButton");
+    const nearestButton = document.getElementById("nearestButton");
 
-      console.log("Loading stop:", stopId);
+    let searchTimeout;
 
-      const res = await fetch(`/api/departures?stopId=${stopId}`);
-      const data = await res.json();
+    function setStatus(message, isError = false) {
+      status.textContent = message;
+      status.className = isError ? "status error" : "status";
+    }
 
-      console.log("API response:", data);
+    function setSearchStatus(message, isError = false) {
+      searchStatus.textContent = message;
+      searchStatus.className = isError ? "status error" : "status";
+    }
 
-      const list = document.getElementById("list");
+    function setLoadingState(button, isLoading) {
+      button.disabled = isLoading;
+    }
+
+    function renderDepartures(departures) {
       list.innerHTML = "";
 
-      const departures =
-        data.departures ||
-        data[0]?.departures ||
-        data.data?.departures ||
-        [];
-
-      if (departures.length === 0) {
-        list.innerHTML = "<li>No departures found</li>";
+      if (!departures.length) {
+        const li = document.createElement("li");
+        li.textContent = "Nebyly nalezeny zadne odjezdy.";
+        list.appendChild(li);
         return;
       }
 
-      departures.forEach(d => {
+      departures.forEach((departure) => {
         const li = document.createElement("li");
+        const timestamp =
+          departure.departure_timestamp?.predicted ||
+          departure.departure_timestamp?.scheduled;
+        const route = departure.route?.short_name || "Spoj";
+        const headsign = departure.trip?.headsign || "Bez cilove stanice";
 
-        const time = new Date(d.departure_timestamp.predicted);
-        const formatted = time.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit"
-        });
+        let formatted = "cas neni k dispozici";
+        if (timestamp) {
+          const time = new Date(timestamp);
+          if (!Number.isNaN(time.getTime())) {
+            formatted = time.toLocaleTimeString("cs-CZ", {
+              hour: "2-digit",
+              minute: "2-digit"
+            });
+          }
+        }
 
-        li.textContent =
-          `${d.route.short_name} → ${d.trip.headsign} (${formatted})`;
-
+        li.textContent = route + " -> " + headsign + " (" + formatted + ")";
         list.appendChild(li);
       });
     }
 
-    async function loadNearest() {
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
+    async function load() {
+      const stopId = stopIdInput.value.trim();
 
-        console.log("GPS:", lat, lon);
+      if (!stopId) {
+        setStatus("Nejdriv vyber zastavku nebo zadej jeji ID.", true);
+        list.innerHTML = "";
+        return;
+      }
 
-        const res = await fetch(`/api/stops?lat=${lat}&lon=${lon}`);
-        const stops = await res.json();
+      currentStop.textContent = "Zastavka: " + stopId;
+      currentStop.classList.remove("muted");
+      setStatus("Nacitam odjezdy...");
+      setLoadingState(loadButton, true);
 
-        console.log("Stops:", stops);
+      try {
+        const res = await fetch("/api/departures?stopId=" + encodeURIComponent(stopId));
 
-        if (!stops.length) {
-          alert("No stops found nearby");
-          return;
+        if (!res.ok) {
+          throw new Error("Nepodarilo se nacist odjezdy.");
         }
 
-        const nearest = stops[0];
-        
-        document.getElementById("stopId").value = nearest.id;
-        document.getElementById("currentStop").textContent = "Stop: " + nearest.name;
-        
-        load();
-      });
+        const data = await res.json();
+        const departures =
+          data.departures ||
+          data[0]?.departures ||
+          data.data?.departures ||
+          [];
+
+        renderDepartures(departures);
+        setStatus("Nacteno " + departures.length + " odjezdu.");
+      } catch (error) {
+        console.error("LOAD ERROR:", error);
+        list.innerHTML = "";
+        setStatus(error.message || "Nacitani odjezdu selhalo.", true);
+      } finally {
+        setLoadingState(loadButton, false);
+      }
     }
 
-    async function searchStop() {
-      const q = document.getElementById("search").value;
+    async function loadNearest() {
+      if (!navigator.geolocation) {
+        setStatus("Tento prohlizec nepodporuje geolokaci.", true);
+        return;
+      }
 
-      if (q.length < 2) return;
+      setStatus("Zjistuji nejblizsi zastavku...");
+      setLoadingState(nearestButton, true);
 
-      const res = await fetch(`/api/search?name=${q}`);
-      const data = await res.json();
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const res = await fetch("/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon));
 
-      const results = document.getElementById("results");
+            if (!res.ok) {
+              throw new Error("Nepodarilo se nacist okoli zastavky.");
+            }
+
+            const stops = await res.json();
+
+            if (!Array.isArray(stops) || !stops.length) {
+              setStatus("V okoli nebyly nalezeny zadne zastavky.", true);
+              return;
+            }
+
+            const nearest = stops[0];
+            stopIdInput.value = nearest.id || "";
+            currentStop.textContent = "Zastavka: " + (nearest.name || nearest.id || "neznama");
+            currentStop.classList.remove("muted");
+            setStatus("Nalezena nejblizsi zastavka, nacitam odjezdy...");
+            await load();
+          } catch (error) {
+            console.error("NEAREST ERROR:", error);
+            setStatus(error.message || "Nacitani nejblizsi zastavky selhalo.", true);
+          } finally {
+            setLoadingState(nearestButton, false);
+          }
+        },
+        (error) => {
+          console.error("GEOLOCATION ERROR:", error);
+          setLoadingState(nearestButton, false);
+          setStatus("Pristup k poloze nebyl povolen nebo se ji nepodarilo ziskat.", true);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
+    function renderSearchResults(stops) {
       results.innerHTML = "";
 
-      data.forEach(s => {
-        const li = document.createElement("li");
-        li.textContent = s.name;
+      if (!stops.length) {
+        setSearchStatus("Zadne zastavky neodpovidaji hledani.");
+        return;
+      }
 
-        li.onclick = () => {
-          document.getElementById("stopId").value = s.id;
-          document.getElementById("currentStop").textContent =
-            "Stop: " + s.name;
-        
+      setSearchStatus("Vyber zastavku ze seznamu.");
+
+      stops.forEach((stop) => {
+        const li = document.createElement("li");
+        li.className = "search-result";
+        li.tabIndex = 0;
+        li.textContent = stop.name || stop.id || "Neznama zastavka";
+
+        const selectStop = () => {
+          stopIdInput.value = stop.id || "";
+          currentStop.textContent = "Zastavka: " + (stop.name || stop.id || "neznama");
+          currentStop.classList.remove("muted");
           results.innerHTML = "";
+          setSearchStatus("");
           load();
         };
+
+        li.addEventListener("click", selectStop);
+        li.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            selectStop();
+          }
+        });
 
         results.appendChild(li);
       });
     }
+
+    async function searchStop() {
+      const query = searchInput.value.trim();
+
+      if (query.length < 2) {
+        results.innerHTML = "";
+        setSearchStatus(query.length === 0 ? "" : "Zadej alespon 2 znaky.");
+        return;
+      }
+
+      setSearchStatus("Hledam zastavky...");
+
+      try {
+        const res = await fetch("/api/search?name=" + encodeURIComponent(query));
+
+        if (!res.ok) {
+          throw new Error("Vyhledavani zastavek selhalo.");
+        }
+
+        const data = await res.json();
+        renderSearchResults(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("SEARCH ERROR:", error);
+        results.innerHTML = "";
+        setSearchStatus(error.message || "Vyhledavani selhalo.", true);
+      }
+    }
+
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(searchStop, 250);
+    });
+
+    stopIdInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        load();
+      }
+    });
+
+    loadButton.addEventListener("click", load);
+    nearestButton.addEventListener("click", loadNearest);
   </script>
 </body>
 </html>
