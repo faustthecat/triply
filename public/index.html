@@ -196,6 +196,27 @@
       color: var(--muted);
     }
 
+    .nearest-list {
+      margin-top: 16px;
+    }
+
+    .nearest-item {
+      cursor: pointer;
+    }
+
+    .nearest-item:hover,
+    .nearest-item:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    .nearest-distance {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
     .muted {
       color: var(--muted);
     }
@@ -245,6 +266,7 @@
           <button id="loadButton" type="button">Nacist odjezdy</button>
           <button id="nearestButton" type="button" class="secondary">Nejblizsi zastavka</button>
         </div>
+        <ul id="nearestList" class="nearest-list" aria-label="Nejblizsi zastavky"></ul>
         <p id="currentStop" class="current-stop muted">Zatim neni vybrana zadna zastavka.</p>
         <div id="status" class="status" aria-live="polite"></div>
         <ul id="list" aria-label="Seznam odjezdu"></ul>
@@ -262,6 +284,7 @@
     const currentStop = document.getElementById("currentStop");
     const loadButton = document.getElementById("loadButton");
     const nearestButton = document.getElementById("nearestButton");
+    const nearestList = document.getElementById("nearestList");
 
     let searchTimeout;
 
@@ -277,6 +300,71 @@
 
     function setLoadingState(button, isLoading) {
       button.disabled = isLoading;
+    }
+
+    function formatDistance(distance) {
+      if (!Number.isFinite(distance)) {
+        return "";
+      }
+
+      if (distance < 1000) {
+        return distance + " m";
+      }
+
+      return (distance / 1000).toFixed(1) + " km";
+    }
+
+    function clearNearestStops() {
+      nearestList.innerHTML = "";
+    }
+
+    function applySelectedStop(stop, shouldLoad = true) {
+      stopIdInput.value = stop.id || "";
+      currentStop.textContent = "Zastavka: " + (stop.fullName || stop.name || stop.id || "neznama");
+      currentStop.classList.remove("muted");
+      clearNearestStops();
+
+      if (shouldLoad) {
+        load();
+      }
+    }
+
+    function renderNearestStops(stops) {
+      clearNearestStops();
+
+      stops.forEach((stop) => {
+        const li = document.createElement("li");
+        li.className = "nearest-item";
+        li.tabIndex = 0;
+
+        const title = document.createElement("span");
+        title.className = "search-result-title";
+        title.textContent = stop.name || stop.id || "Neznama zastavka";
+
+        const distance = document.createElement("span");
+        distance.className = "nearest-distance";
+        distance.textContent = formatDistance(stop.distance);
+
+        li.appendChild(title);
+        if (distance.textContent) {
+          li.appendChild(distance);
+        }
+
+        const handleSelect = () => {
+          setStatus("Nacitam odjezdy pro vybranou zastavku...");
+          applySelectedStop(stop, true);
+        };
+
+        li.addEventListener("click", handleSelect);
+        li.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            handleSelect();
+          }
+        });
+
+        nearestList.appendChild(li);
+      });
     }
 
     function renderDepartures(departures) {
@@ -344,6 +432,7 @@
         return;
       }
 
+      clearNearestStops();
       currentStop.textContent = "Zastavka: " + stopId;
       currentStop.classList.remove("muted");
       setStatus("Nacitam odjezdy...");
@@ -377,6 +466,7 @@
         return;
       }
 
+      clearNearestStops();
       setStatus("Zjistuji nejblizsi zastavku...");
       setLoadingState(nearestButton, true);
 
@@ -386,7 +476,7 @@
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
             const stops = await fetchJsonOrThrow(
-              "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon),
+              "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon) + "&limit=3",
               "Nepodarilo se nacist okoli zastavky."
             );
 
@@ -395,12 +485,8 @@
               return;
             }
 
-            const nearest = stops[0];
-            stopIdInput.value = nearest.id || "";
-            currentStop.textContent = "Zastavka: " + (nearest.name || nearest.id || "neznama");
-            currentStop.classList.remove("muted");
-            setStatus("Nalezena nejblizsi zastavka, nacitam odjezdy...");
-            await load();
+            renderNearestStops(stops);
+            setStatus("Vyber jednu ze 3 nejblizsich zastavek.");
           } catch (error) {
             console.error("NEAREST ERROR:", error);
             setStatus(error.message || "Nacitani nejblizsi zastavky selhalo.", true);
@@ -444,20 +530,17 @@
           li.appendChild(subtitle);
         }
 
-        const selectStop = () => {
-          stopIdInput.value = stop.id || "";
-          currentStop.textContent = "Zastavka: " + (stop.fullName || stop.name || stop.id || "neznama");
-          currentStop.classList.remove("muted");
+        const handleSelect = () => {
+          applySelectedStop(stop, true);
           results.innerHTML = "";
           setSearchStatus("");
-          load();
         };
 
-        li.addEventListener("click", selectStop);
+        li.addEventListener("click", handleSelect);
         li.addEventListener("keydown", (event) => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-            selectStop();
+            handleSelect();
           }
         });
 
