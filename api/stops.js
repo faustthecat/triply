@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     const { lat, lon } = req.query;
 
     const response = await fetch(
-      `https://api.golemio.cz/v2/pid/stops?lat=${lat}&lon=${lon}&range=300`,
+      `https://api.golemio.cz/v2/pid/stops?lat=${lat}&lon=${lon}&range=1000`,
       {
         headers: {
           "X-Access-Token": process.env.GOLEMIO_KEY
