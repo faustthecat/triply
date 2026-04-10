@@ -531,6 +531,8 @@
 
     let searchTimeout;
     let searchRequestId = 0;
+    let activeSearchController = null;
+    const searchCache = new Map();
     let map = null;
     let nearestMarkers = null;
 
@@ -587,6 +589,14 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+    }
+
+    function normalizeText(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
     }
 
     function formatStopName(stop) {
@@ -987,8 +997,8 @@
       });
     }
 
-    async function fetchJsonOrThrow(url, fallbackMessage) {
-      const res = await fetch(url);
+    async function fetchJsonOrThrow(url, fallbackMessage, options = {}) {
+      const res = await fetch(url, options);
       let payload = null;
 
       try {
@@ -1149,29 +1159,59 @@
 
     async function searchStop() {
       const query = searchInput.value.trim();
+      const cacheKey = normalizeText(query);
       const requestId = searchRequestId + 1;
       searchRequestId = requestId;
 
       if (query.length < 2) {
+        if (activeSearchController) {
+          activeSearchController.abort();
+          activeSearchController = null;
+        }
         results.innerHTML = "";
         setSearchStatus(query.length === 0 ? "" : "Zadej alespoň 2 znaky.");
         return;
       }
+
+      if (searchCache.has(cacheKey)) {
+        renderSearchResults(searchCache.get(cacheKey));
+        return;
+      }
+
+      if (activeSearchController) {
+        activeSearchController.abort();
+      }
+      activeSearchController = new AbortController();
 
       setSearchStatus("Hledám zastávky...");
 
       try {
         const data = await fetchJsonOrThrow(
           "/api/search?name=" + encodeURIComponent(query),
-          "Vyhledávání zastávek selhalo."
+          "Vyhledávání zastávek selhalo.",
+          { signal: activeSearchController.signal }
         );
 
         if (requestId !== searchRequestId || query !== searchInput.value.trim()) {
           return;
         }
 
-        renderSearchResults(Array.isArray(data) ? data : []);
+        const normalizedData = Array.isArray(data) ? data : [];
+
+        searchCache.set(cacheKey, normalizedData);
+        if (searchCache.size > 60) {
+          const firstKey = searchCache.keys().next().value;
+          if (firstKey) {
+            searchCache.delete(firstKey);
+          }
+        }
+
+        renderSearchResults(normalizedData);
       } catch (error) {
+        if (error?.name === "AbortError") {
+          return;
+        }
+
         if (requestId !== searchRequestId || query !== searchInput.value.trim()) {
           return;
         }

@@ -1,9 +1,11 @@
 let cachedStops = null;
 let cachedAt = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000;
+const QUERY_CACHE_TTL_MS = 2 * 60 * 1000;
 const MAX_RESULTS = 10;
 const STOPS_PAGE_SIZE = 5000;
 const MAX_STOPS_PAGES = 12;
+const queryCache = new Map();
 
 function normalizeText(value) {
   return String(value || "")
@@ -157,6 +159,62 @@ function getFeatureStopId(feature) {
   );
 }
 
+function isCatalogWarm() {
+  return Boolean(cachedStops) && Date.now() - cachedAt < CACHE_TTL_MS;
+}
+
+function getCachedQueryResult(normalizedQuery) {
+  const cached = queryCache.get(normalizedQuery);
+
+  if (!cached) {
+    return null;
+  }
+
+  if (Date.now() - cached.at > QUERY_CACHE_TTL_MS) {
+    queryCache.delete(normalizedQuery);
+    return null;
+  }
+
+  return cached.value;
+}
+
+function setCachedQueryResult(normalizedQuery, value) {
+  queryCache.set(normalizedQuery, {
+    at: Date.now(),
+    value
+  });
+
+  if (queryCache.size > 120) {
+    const firstKey = queryCache.keys().next().value;
+    if (firstKey) {
+      queryCache.delete(firstKey);
+    }
+  }
+}
+
+function sortMatchedStops(stops, normalizedQuery) {
+  return stops
+    .filter(
+      (stop) =>
+        stop.normalizedPrimaryName.includes(normalizedQuery) ||
+        stop.normalizedFullName.includes(normalizedQuery) ||
+        stop.normalizedSubtitle.includes(normalizedQuery)
+    )
+    .sort((a, b) => {
+      const scoreDiff = getScore(a, normalizedQuery) - getScore(b, normalizedQuery);
+      if (scoreDiff !== 0) {
+        return scoreDiff;
+      }
+
+      const lengthDiff = a.fullName.length - b.fullName.length;
+      if (lengthDiff !== 0) {
+        return lengthDiff;
+      }
+
+      return a.fullName.localeCompare(b.fullName, "cs");
+    });
+}
+
 async function loadAllStops() {
   const now = Date.now();
   if (cachedStops && now - cachedAt < CACHE_TTL_MS) {
@@ -284,44 +342,45 @@ export default async function handler(req, res) {
     }
 
     const normalizedQuery = normalizeText(name);
-    const [matchingStops, allStops] = await Promise.all([
-      loadMatchingStops(name),
-      loadAllStops()
-    ]);
-    const localMatches = allStops.filter(
-      (stop) =>
-        stop.normalizedPrimaryName.includes(normalizedQuery) ||
-        stop.normalizedFullName.includes(normalizedQuery) ||
-        stop.normalizedSubtitle.includes(normalizedQuery)
-    );
+    const cachedResult = getCachedQueryResult(normalizedQuery);
+
+    if (cachedResult) {
+      return res.status(200).json(cachedResult);
+    }
+
+    const matchingStops = await loadMatchingStops(name);
     const combinedStops = new Map();
 
-    for (const stop of matchingStops.concat(localMatches)) {
+    for (const stop of matchingStops) {
       if (!combinedStops.has(stop.id)) {
         combinedStops.set(stop.id, stop);
       }
     }
 
-    const matches = Array.from(combinedStops.values())
-      .filter(
-        (stop) =>
-          stop.normalizedPrimaryName.includes(normalizedQuery) ||
-          stop.normalizedFullName.includes(normalizedQuery) ||
-          stop.normalizedSubtitle.includes(normalizedQuery)
-      )
-      .sort((a, b) => {
-        const scoreDiff = getScore(a, normalizedQuery) - getScore(b, normalizedQuery);
-        if (scoreDiff !== 0) {
-          return scoreDiff;
+    let matches = sortMatchedStops(Array.from(combinedStops.values()), normalizedQuery);
+
+    if (matches.length < MAX_RESULTS) {
+      if (isCatalogWarm()) {
+        const localMatches = cachedStops.filter(
+          (stop) =>
+            stop.normalizedPrimaryName.includes(normalizedQuery) ||
+            stop.normalizedFullName.includes(normalizedQuery) ||
+            stop.normalizedSubtitle.includes(normalizedQuery)
+        );
+
+        for (const stop of localMatches) {
+          if (!combinedStops.has(stop.id)) {
+            combinedStops.set(stop.id, stop);
+          }
         }
 
-        const lengthDiff = a.fullName.length - b.fullName.length;
-        if (lengthDiff !== 0) {
-          return lengthDiff;
-        }
-
-        return a.fullName.localeCompare(b.fullName, "cs");
-      });
+        matches = sortMatchedStops(Array.from(combinedStops.values()), normalizedQuery);
+      } else {
+        loadAllStops().catch((error) => {
+          console.error("SEARCH WARMUP ERROR:", error);
+        });
+      }
+    }
 
     const groupedMatches = groupStops(matches)
       .map((stop) => ({
@@ -357,6 +416,8 @@ export default async function handler(req, res) {
         subtitle: stop.subtitle,
         isMetro: stop.isMetro
       }));
+
+    setCachedQueryResult(normalizedQuery, groupedMatches);
 
     return res.status(200).json(groupedMatches);
   } catch (e) {
