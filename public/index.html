@@ -46,10 +46,75 @@
       backdrop-filter: blur(10px);
     }
 
+    .hero {
+      text-align: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(15, 118, 110, 0.2);
+    }
+
     h1 {
-      margin: 0 0 8px;
+      margin: 0;
       font-size: clamp(2rem, 4vw, 3rem);
       line-height: 1.1;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #0b4a45;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .brand-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0f766e, #115e59);
+      color: #fff;
+      font-size: 1.15rem;
+      box-shadow: 0 8px 20px rgba(15, 118, 110, 0.28);
+    }
+
+    .brand-track {
+      width: 180px;
+      height: 8px;
+      margin: 10px auto 8px;
+      border-radius: 999px;
+      background:
+        linear-gradient(90deg, #cfe8e4 0%, #e7f2ef 100%),
+        repeating-linear-gradient(90deg, #8aaea8 0 10px, transparent 10px 20px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-track::after {
+      content: "";
+      position: absolute;
+      top: 1px;
+      left: -46px;
+      width: 46px;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0f766e, #16a394);
+      animation: ride 3s linear infinite;
+    }
+
+    @keyframes ride {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(226px);
+      }
+    }
+
+    .hero-subtitle {
+      margin-top: 2px;
     }
 
     p {
@@ -73,6 +138,59 @@
     .panel h2 {
       margin: 0 0 14px;
       font-size: 1.15rem;
+    }
+
+    .panel h3 {
+      margin: 18px 0 10px;
+      font-size: 1rem;
+    }
+
+    .lead {
+      margin-top: 6px;
+      font-size: 0.96rem;
+    }
+
+    .search-modes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .mode-card {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+
+    .mode-card.primary {
+      border-color: rgba(15, 118, 110, 0.45);
+      background: linear-gradient(180deg, #f3fbf8 0%, #edf7f4 100%);
+      box-shadow: 0 10px 24px rgba(15, 118, 110, 0.12);
+    }
+
+    .mode-card h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+    }
+
+    .mode-hint {
+      margin: 0 0 12px;
+      font-size: 0.92rem;
+    }
+
+    .mode-badge {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.14);
+      color: #0f5e57;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .field {
@@ -134,6 +252,17 @@
       background: #cbe7df;
     }
 
+    .cta-location {
+      width: 100%;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f766e, #0d8f85);
+      font-weight: 700;
+    }
+
+    .cta-location:hover {
+      background: linear-gradient(135deg, #0d6f67, #0b7c74);
+    }
+
     button:disabled {
       opacity: 0.6;
       cursor: wait;
@@ -155,6 +284,41 @@
       margin: 0 0 14px;
       font-size: 1rem;
       font-weight: 700;
+    }
+
+    .selected-stop {
+      padding: 14px 16px;
+      border: 1px solid rgba(15, 118, 110, 0.28);
+      border-radius: 16px;
+      background: #eef8f4;
+      color: var(--accent-strong);
+    }
+
+    .advanced {
+      margin-top: 20px;
+      padding: 10px 12px;
+      border: 1px dashed rgba(82, 96, 109, 0.35);
+      border-radius: 14px;
+      background: rgba(255, 250, 242, 0.55);
+      opacity: 0.8;
+    }
+
+    .advanced summary,
+    .location-debug-panel summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .advanced .field {
+      margin-top: 12px;
+    }
+
+    .advanced-note {
+      margin: 8px 0 0;
+      font-size: 0.85rem;
+      color: var(--muted);
     }
 
     ul {
@@ -205,6 +369,11 @@
       cursor: pointer;
     }
 
+    .nearest-item.recommended {
+      border-color: rgba(15, 118, 110, 0.45);
+      background: #eef8f4;
+    }
+
     .nearest-item:hover,
     .nearest-item:focus {
       border-color: var(--accent);
@@ -223,6 +392,14 @@
       font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
       font-size: 0.86rem;
       color: var(--muted);
+    }
+
+    .location-debug-panel {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border: 1px dashed rgba(82, 96, 109, 0.35);
+      border-radius: 14px;
+      background: var(--surface);
     }
 
     .nearest-map {
@@ -261,6 +438,10 @@
         flex-direction: column;
       }
 
+      .search-modes {
+        grid-template-columns: 1fr;
+      }
+
       button {
         width: 100%;
       }
@@ -269,36 +450,64 @@
 </head>
 <body>
   <main>
-    <h1>Triply</h1>
-    <p>Rychly prehled odjezdu z vybrane zastavky PID.</p>
+    <header class="hero" aria-label="Nadpis aplikace">
+      <h1 class="brand"><span class="brand-mark" aria-hidden="true">🚉</span>Triply</h1>
+      <div class="brand-track" aria-hidden="true"></div>
+      <p class="hero-subtitle">Rychlý přehled odjezdů z vybrané zastávky PID.</p>
+    </header>
 
     <div class="stack">
       <section class="panel" aria-labelledby="search-heading">
-        <h2 id="search-heading">Najit zastavku</h2>
-        <div class="field">
-          <label for="search">Nazev zastavky</label>
-          <input id="search" placeholder="Zacni psat nazev zastavky" autocomplete="on" />
+        <h2 id="search-heading">Vyber zastávku</h2>
+        <p class="lead">Vyber si způsob hledání: buď napiš název zastávky, nebo použij svou polohu.</p>
+
+        <div class="search-modes">
+          <article class="mode-card primary" aria-labelledby="mode-location-heading">
+            <span class="mode-badge">Doporučeno</span>
+            <h3 id="mode-location-heading">Hledat podle lokality</h3>
+            <p class="mode-hint">Najdeme zastávky v tvém okolí a nabídneme tu nejbližší.</p>
+            <div class="actions">
+              <button id="nearestButton" type="button" class="cta-location">Použít moji aktuální polohu</button>
+            </div>
+            <h3 id="nearestHeading" hidden>Zastávky v okolí</h3>
+            <ul id="nearestList" class="nearest-list" aria-label="Nejbližší zastávky"></ul>
+
+            <details id="locationDebugPanel" class="location-debug-panel">
+              <summary>Technické detaily polohy</summary>
+              <p id="locationDebug" class="location-debug muted">Souřadnice zatím nejsou k dispozici.</p>
+              <div id="nearestMap" class="nearest-map" aria-label="Mapa nejbližších zastávek"></div>
+            </details>
+          </article>
+
+          <article class="mode-card" aria-labelledby="mode-text-heading">
+            <h3 id="mode-text-heading">Hledat podle názvu</h3>
+            <p class="mode-hint">Začni psát a vyber zastávku z nabídky.</p>
+            <div class="field">
+              <label for="search">Název zastávky</label>
+              <input id="search" placeholder="Např. Anděl, Muzeum, Dejvická" autocomplete="on" />
+            </div>
+            <div id="searchStatus" class="status" aria-live="polite"></div>
+            <ul id="results" aria-label="Výsledky hledání"></ul>
+          </article>
         </div>
-        <div id="searchStatus" class="status" aria-live="polite"></div>
-        <ul id="results" aria-label="Vysledky hledani"></ul>
       </section>
 
-      <section class="panel" aria-labelledby="departures-heading">
+      <section id="departuresPanel" class="panel" aria-labelledby="departures-heading">
         <h2 id="departures-heading">Odjezdy</h2>
-        <div class="field">
-          <label for="stopId">ID zastavky</label>
-          <input id="stopId" placeholder="Napr. U699Z1P" />
-        </div>
-        <div class="actions">
-          <button id="loadButton" type="button">Nacist odjezdy</button>
-          <button id="nearestButton" type="button" class="secondary">Nejblizsi zastavka</button>
-        </div>
-        <p id="locationDebug" class="location-debug muted">Souradnice zatim nejsou k dispozici.</p>
-        <div id="nearestMap" class="nearest-map" aria-label="Mapa nejblizsich zastavek"></div>
-        <ul id="nearestList" class="nearest-list" aria-label="Nejblizsi zastavky"></ul>
-        <p id="currentStop" class="current-stop muted">Zatim neni vybrana zadna zastavka.</p>
+        <p id="currentStop" class="current-stop selected-stop muted">Zatím není vybraná žádná zastávka.</p>
+        <details class="advanced">
+          <summary>Nouzově: ručně zadat ID zastávky</summary>
+          <p class="advanced-note">Použij jen pokud víš přesné ID zastávky. Pro běžné použití vyber zastávku výše.</p>
+          <div class="field">
+            <label for="stopId">ID zastávky</label>
+            <input id="stopId" placeholder="Např. U699Z1P" />
+          </div>
+          <div class="actions">
+            <button id="loadButton" type="button">Načíst odjezdy</button>
+          </div>
+        </details>
         <div id="status" class="status" aria-live="polite"></div>
-        <ul id="list" aria-label="Seznam odjezdu"></ul>
+        <ul id="list" aria-label="Seznam odjezdů"></ul>
       </section>
     </div>
   </main>
@@ -312,9 +521,11 @@
     const status = document.getElementById("status");
     const searchStatus = document.getElementById("searchStatus");
     const currentStop = document.getElementById("currentStop");
+    const departuresPanel = document.getElementById("departuresPanel");
     const loadButton = document.getElementById("loadButton");
     const nearestButton = document.getElementById("nearestButton");
     const nearestList = document.getElementById("nearestList");
+    const nearestHeading = document.getElementById("nearestHeading");
     const locationDebug = document.getElementById("locationDebug");
     const nearestMap = document.getElementById("nearestMap");
 
@@ -378,8 +589,14 @@
         .replaceAll("'", "&#039;");
     }
 
+    function formatStopName(stop) {
+      const name = stop?.name || stop?.fullName || stop?.id || "Neznámá zastávka";
+      return name + (stop?.isMetro ? " (M)" : "");
+    }
+
     function clearNearestStops() {
       nearestList.innerHTML = "";
+      nearestHeading.hidden = true;
     }
 
     function renderLocationDebug(lat, lon, accuracy) {
@@ -388,7 +605,7 @@
         : "";
 
       locationDebug.textContent =
-        "Tvoje souradnice: lat " +
+        "Tvoje souřadnice: lat " +
         formatCoordinate(lat) +
         ", lon " +
         formatCoordinate(lon) +
@@ -428,7 +645,7 @@
       const activeMap = ensureNearestMap();
 
       if (!activeMap) {
-        locationDebug.textContent += " | Mapa se nepodarila nacist.";
+        locationDebug.textContent += " | Mapa se nepodařila načíst.";
         return;
       }
 
@@ -457,7 +674,7 @@
         L.marker(stopPosition)
           .bindPopup(
             "<strong>" +
-              escapeHtml(stop.name || stop.fullName || stop.id || "Neznama zastavka") +
+              escapeHtml(formatStopName(stop)) +
               "</strong><br>" +
               formatDistance(stop.distance) +
               "<br>lat " +
@@ -484,8 +701,8 @@
       const stopIds = toStopIds(stop);
       stopIdInput.value = stopIds.join(",");
       currentStop.dataset.stopIds = stopIds.join(",");
-      currentStop.dataset.label = stop.fullName || stop.name || stop.id || "";
-      currentStop.textContent = "Zastavka: " + (currentStop.dataset.label || "neznama");
+      currentStop.dataset.label = formatStopName(stop);
+      currentStop.textContent = "Vybraná zastávka: " + (currentStop.dataset.label || "neznámá");
       currentStop.classList.remove("muted");
       clearNearestStops();
 
@@ -496,15 +713,16 @@
 
     function renderNearestStops(stops) {
       clearNearestStops();
+      nearestHeading.hidden = !stops.length;
 
-      stops.forEach((stop) => {
+      stops.forEach((stop, index) => {
         const li = document.createElement("li");
-        li.className = "nearest-item";
+        li.className = index === 0 ? "nearest-item recommended" : "nearest-item";
         li.tabIndex = 0;
 
         const title = document.createElement("span");
         title.className = "search-result-title";
-        title.textContent = stop.name || stop.id || "Neznama zastavka";
+        title.textContent = formatStopName(stop);
 
         const subtitle = document.createElement("span");
         subtitle.className = "search-result-subtitle";
@@ -512,7 +730,9 @@
 
         const distance = document.createElement("span");
         distance.className = "nearest-distance";
-        distance.textContent = formatDistance(stop.distance);
+        distance.textContent =
+          (index === 0 ? "Doporučená nejbližší zastávka · " : "") +
+          formatDistance(stop.distance);
 
         li.appendChild(title);
         if (subtitle.textContent) {
@@ -523,7 +743,7 @@
         }
 
         const handleSelect = () => {
-          setStatus("Nacitam odjezdy pro vybranou zastavku...");
+          setStatus("Načítám odjezdy pro vybranou zastávku...");
           applySelectedStop(stop, true);
         };
 
@@ -571,7 +791,7 @@
       const delayMinutes = Math.round((predictedTime - scheduledTime) / 60000);
 
       if (delayMinutes === 0) {
-        return "vcas";
+        return "včas";
       }
 
       if (delayMinutes > 0) {
@@ -727,7 +947,7 @@
 
       if (!departures.length) {
         const li = document.createElement("li");
-        li.textContent = "Nebyly nalezeny zadne odjezdy.";
+        li.textContent = "Nebyly nalezeny žádné odjezdy.";
         list.appendChild(li);
         return;
       }
@@ -741,7 +961,7 @@
         const featureIcons = getDepartureFeatures(departure, vehicleEmoji);
         const delayLabel = getDepartureDelayLabel(departure);
 
-        let formatted = "cas neni k dispozici";
+        let formatted = "čas není k dispozici";
         if (timestamp) {
           const time = new Date(timestamp);
           if (!Number.isNaN(time.getTime())) {
@@ -793,7 +1013,7 @@
       const stopId = stopIdInput.value.trim();
 
       if (!stopId) {
-        setStatus("Nejdriv vyber zastavku nebo zadej jeji ID.", true);
+        setStatus("Nejdřív vyber zastávku nebo zadej její ID.", true);
         list.innerHTML = "";
         return;
       }
@@ -806,15 +1026,15 @@
           : stopId;
       currentStop.dataset.stopIds = stopId;
       currentStop.dataset.label = currentLabel;
-      currentStop.textContent = "Zastavka: " + currentLabel;
+      currentStop.textContent = "Vybraná zastávka: " + currentLabel;
       currentStop.classList.remove("muted");
-      setStatus("Nacitam odjezdy...");
+      setStatus("Načítám odjezdy...");
       setLoadingState(loadButton, true);
 
       try {
         const data = await fetchJsonOrThrow(
           "/api/departures?stopId=" + encodeURIComponent(stopId),
-          "Nepodarilo se nacist odjezdy."
+          "Nepodařilo se načíst odjezdy."
         );
         const departures = normalizeDeparturesResponse(data).sort((a, b) => {
           const first = getDepartureTimestamp(a);
@@ -825,11 +1045,12 @@
         });
 
         renderDepartures(departures);
-        setStatus("Nacteno " + departures.length + " odjezdu.");
+        departuresPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        setStatus("Načteno " + departures.length + " odjezdů.");
       } catch (error) {
         console.error("LOAD ERROR:", error);
         list.innerHTML = "";
-        setStatus(error.message || "Nacitani odjezdu selhalo.", true);
+        setStatus(error.message || "Načítání odjezdů selhalo.", true);
       } finally {
         setLoadingState(loadButton, false);
       }
@@ -837,12 +1058,12 @@
 
     async function loadNearest() {
       if (!navigator.geolocation) {
-        setStatus("Tento prohlizec nepodporuje geolokaci.", true);
+        setStatus("Tento prohlížeč nepodporuje geolokaci.", true);
         return;
       }
 
       clearNearestStops();
-      setStatus("Zjistuji nejblizsi zastavku...");
+      setStatus("Zjišťuji nejbližší zastávku...");
       setLoadingState(nearestButton, true);
 
       navigator.geolocation.getCurrentPosition(
@@ -854,20 +1075,20 @@
             renderLocationDebug(lat, lon, accuracy);
             const stops = await fetchJsonOrThrow(
               "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon) + "&limit=10",
-              "Nepodarilo se nacist okoli zastavky."
+              "Nepodařilo se načíst okolí zastávky."
             );
 
             if (!Array.isArray(stops) || !stops.length) {
-              setStatus("V okoli nebyly nalezeny zadne zastavky.", true);
+              setStatus("V okolí nebyly nalezeny žádné zastávky.", true);
               return;
             }
 
             renderNearestStops(stops);
             renderNearestMap(lat, lon, stops);
-            setStatus("Vyber jednu z nejblizsich zastavek.");
+            setStatus("Vyber jednu z nejbližších zastávek.");
           } catch (error) {
             console.error("NEAREST ERROR:", error);
-            setStatus(error.message || "Nacitani nejblizsi zastavky selhalo.", true);
+            setStatus(error.message || "Načítání nejbližší zastávky selhalo.", true);
           } finally {
             setLoadingState(nearestButton, false);
           }
@@ -875,7 +1096,7 @@
         (error) => {
           console.error("GEOLOCATION ERROR:", error);
           setLoadingState(nearestButton, false);
-          setStatus("Pristup k poloze nebyl povolen nebo se ji nepodarilo ziskat.", true);
+          setStatus("Přístup k poloze nebyl povolen nebo se ji nepodařilo získat.", true);
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
@@ -885,11 +1106,11 @@
       results.innerHTML = "";
 
       if (!stops.length) {
-        setSearchStatus("Zadne zastavky neodpovidaji hledani.");
+        setSearchStatus("Žádné zastávky neodpovídají hledání.");
         return;
       }
 
-      setSearchStatus("Vyber zastavku ze seznamu.");
+      setSearchStatus("Vyber zastávku ze seznamu.");
 
       stops.forEach((stop) => {
         const li = document.createElement("li");
@@ -897,7 +1118,7 @@
         li.tabIndex = 0;
         const title = document.createElement("span");
         title.className = "search-result-title";
-        title.textContent = stop.name || stop.fullName || stop.id || "Neznama zastavka";
+        title.textContent = formatStopName(stop);
 
         const subtitle = document.createElement("span");
         subtitle.className = "search-result-subtitle";
@@ -933,16 +1154,16 @@
 
       if (query.length < 2) {
         results.innerHTML = "";
-        setSearchStatus(query.length === 0 ? "" : "Zadej alespon 2 znaky.");
+        setSearchStatus(query.length === 0 ? "" : "Zadej alespoň 2 znaky.");
         return;
       }
 
-      setSearchStatus("Hledam zastavky...");
+      setSearchStatus("Hledám zastávky...");
 
       try {
         const data = await fetchJsonOrThrow(
           "/api/search?name=" + encodeURIComponent(query),
-          "Vyhledavani zastavek selhalo."
+          "Vyhledávání zastávek selhalo."
         );
 
         if (requestId !== searchRequestId || query !== searchInput.value.trim()) {
@@ -957,7 +1178,7 @@
 
         console.error("SEARCH ERROR:", error);
         results.innerHTML = "";
-        setSearchStatus(error.message || "Vyhledavani selhalo.", true);
+        setSearchStatus(error.message || "Vyhledávání selhalo.", true);
       }
     }
 

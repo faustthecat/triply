@@ -28,18 +28,26 @@ function parseStop(feature) {
   const name = segments.length > 0 ? segments[segments.length - 1] : fullName;
   const subtitle = segments.length > 1 ? segments.slice(0, -1).join(", ") : "";
 
-  return {
-    id:
+  const id =
       feature?.id ||
       feature?.gtfs_id ||
       feature?.stop_id ||
       properties?.id ||
       properties?.gtfs_id ||
       properties?.stop_id ||
-      "",
+      "";
+  const zoneId = feature?.zone_id || properties?.zone_id || "";
+
+  return {
+    id,
     name,
     fullName,
     subtitle,
+    isMetro:
+      String(zoneId) === "0" ||
+      /S\d+$/i.test(String(id)) ||
+      /Z10\d$/i.test(String(id)) ||
+      /Z10\dP$/i.test(String(id)),
     parentId:
       feature?.parent_station ||
       feature?.parentStation ||
@@ -57,11 +65,11 @@ function groupStops(stops) {
   const groups = new Map();
 
   for (const stop of stops) {
-    const groupKey =
-      stop.parentId ||
-      stop.fullName ||
-      stop.name ||
-      stop.id;
+    const isMetro = Boolean(stop.isMetro);
+    const baseGroupKey = isMetro
+      ? stop.fullName || stop.name || stop.id
+      : stop.parentId || stop.fullName || stop.name || stop.id;
+    const groupKey = baseGroupKey + (isMetro ? "|metro" : "|surface");
 
     if (!groupKey) {
       continue;
@@ -76,7 +84,8 @@ function groupStops(stops) {
         ids: sortStopIds([stop.id]),
         name: stop.name,
         fullName: stop.fullName || stop.name || stop.id,
-        subtitle: stop.subtitle || ""
+        subtitle: stop.subtitle || "",
+        isMetro
       });
       continue;
     }
@@ -94,6 +103,8 @@ function groupStops(stops) {
     if ((!existing.subtitle || existing.subtitle.length > stop.subtitle.length) && stop.subtitle) {
       existing.subtitle = stop.subtitle;
     }
+
+    existing.isMetro = existing.isMetro || isMetro;
   }
 
   return Array.from(groups.values()).map((group) => ({
@@ -319,6 +330,7 @@ export default async function handler(req, res) {
         name: stop.name,
         fullName: stop.fullName,
         subtitle: stop.subtitle,
+        isMetro: stop.isMetro,
         normalizedPrimaryName: normalizeText(stop.name),
         normalizedFullName: normalizeText(stop.fullName),
         normalizedSubtitle: normalizeText(stop.subtitle)
@@ -342,7 +354,8 @@ export default async function handler(req, res) {
         ids: stop.ids,
         name: stop.name,
         fullName: stop.fullName,
-        subtitle: stop.subtitle
+        subtitle: stop.subtitle,
+        isMetro: stop.isMetro
       }));
 
     return res.status(200).json(groupedMatches);
