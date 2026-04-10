@@ -1,8 +1,9 @@
 let cachedStops = null;
 let cachedAt = 0;
-
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const MAX_RESULTS = 10;
+const STOPS_PAGE_SIZE = 5000;
+const MAX_STOPS_PAGES = 12;
 
 function normalizeText(value) {
   return String(value || "")
@@ -34,11 +35,71 @@ function parseStop(feature) {
       feature?.stop_id ||
       properties?.id ||
       properties?.gtfs_id ||
-      properties?.stop_id,
+      properties?.stop_id ||
+      "",
     name,
     fullName,
-    subtitle
+    subtitle,
+    parentId:
+      feature?.parent_station ||
+      feature?.parentStation ||
+      properties?.parent_station ||
+      properties?.parentStation ||
+      ""
   };
+}
+
+function sortStopIds(ids) {
+  return Array.from(new Set(ids.filter(Boolean))).sort((a, b) => a.localeCompare(b, "cs"));
+}
+
+function groupStops(stops) {
+  const groups = new Map();
+
+  for (const stop of stops) {
+    const groupKey =
+      stop.parentId ||
+      stop.fullName ||
+      stop.name ||
+      stop.id;
+
+    if (!groupKey) {
+      continue;
+    }
+
+    const normalizedGroupKey = normalizeText(groupKey);
+    const existing = groups.get(normalizedGroupKey);
+
+    if (!existing) {
+      groups.set(normalizedGroupKey, {
+        id: stop.id,
+        ids: sortStopIds([stop.id]),
+        name: stop.name,
+        fullName: stop.fullName || stop.name || stop.id,
+        subtitle: stop.subtitle || ""
+      });
+      continue;
+    }
+
+    existing.ids = sortStopIds(existing.ids.concat(stop.id));
+
+    if ((!existing.fullName || existing.fullName.length > stop.fullName.length) && stop.fullName) {
+      existing.fullName = stop.fullName;
+    }
+
+    if ((!existing.name || existing.name.length > stop.name.length) && stop.name) {
+      existing.name = stop.name;
+    }
+
+    if ((!existing.subtitle || existing.subtitle.length > stop.subtitle.length) && stop.subtitle) {
+      existing.subtitle = stop.subtitle;
+    }
+  }
+
+  return Array.from(groups.values()).map((group) => ({
+    ...group,
+    id: group.ids[0] || group.id
+  }));
 }
 
 function getScore(stop, normalizedQuery) {
@@ -73,33 +134,80 @@ function getScore(stop, normalizedQuery) {
   return 7;
 }
 
+function getFeatureStopId(feature) {
+  return (
+    feature?.id ||
+    feature?.gtfs_id ||
+    feature?.stop_id ||
+    feature?.properties?.id ||
+    feature?.properties?.gtfs_id ||
+    feature?.properties?.stop_id ||
+    ""
+  );
+}
+
 async function loadAllStops() {
   const now = Date.now();
   if (cachedStops && now - cachedAt < CACHE_TTL_MS) {
     return cachedStops;
   }
 
-  const params = new URLSearchParams({
-    limit: "10000"
-  });
+  async function fetchStopsPage(extraParams) {
+    const params = new URLSearchParams({
+      limit: String(STOPS_PAGE_SIZE),
+      ...extraParams
+    });
 
-  const response = await fetch("https://api.golemio.cz/v2/gtfs/stops?" + params.toString(), {
-    headers: {
-      "X-Access-Token": process.env.GOLEMIO_KEY
+    const response = await fetch("https://api.golemio.cz/v2/gtfs/stops?" + params.toString(), {
+      headers: {
+        "X-Access-Token": process.env.GOLEMIO_KEY
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error("Stops catalog lookup failed: " + errorText);
     }
-  });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error("Stops catalog lookup failed: " + errorText);
+    const data = await response.json();
+    return data?.features || data?.data?.features || data?.stops || [];
   }
 
-  const data = await response.json();
-  const rawStops =
-    data?.features ||
-    data?.data?.features ||
-    data?.stops ||
-    [];
+  async function fetchCatalogWithStrategy(buildParams) {
+    const collected = [];
+    const seenPageSignatures = new Set();
+
+    for (let index = 0; index < MAX_STOPS_PAGES; index += 1) {
+      const pageStops = await fetchStopsPage(buildParams(index));
+
+      if (!pageStops.length) {
+        break;
+      }
+
+      const pageSignature = [
+        getFeatureStopId(pageStops[0]),
+        getFeatureStopId(pageStops[pageStops.length - 1]),
+        pageStops.length
+      ].join("|");
+
+      if (seenPageSignatures.has(pageSignature)) {
+        break;
+      }
+
+      seenPageSignatures.add(pageSignature);
+      collected.push(...pageStops);
+
+      if (pageStops.length < STOPS_PAGE_SIZE) {
+        break;
+      }
+    }
+
+    return collected;
+  }
+
+  const rawStops = await fetchCatalogWithStrategy((index) => ({
+    offset: String(index * STOPS_PAGE_SIZE)
+  }));
 
   cachedStops = rawStops
     .map(parseStop)
@@ -165,18 +273,25 @@ export default async function handler(req, res) {
     }
 
     const normalizedQuery = normalizeText(name);
-    const matchingStops = await loadMatchingStops(name);
-    const fallbackStops =
-      matchingStops.length > 0
-        ? matchingStops
-        : (await loadAllStops()).filter(
-            (stop) =>
-              stop.normalizedPrimaryName.includes(normalizedQuery) ||
-              stop.normalizedFullName.includes(normalizedQuery) ||
-              stop.normalizedSubtitle.includes(normalizedQuery)
-          );
+    const [matchingStops, allStops] = await Promise.all([
+      loadMatchingStops(name),
+      loadAllStops()
+    ]);
+    const localMatches = allStops.filter(
+      (stop) =>
+        stop.normalizedPrimaryName.includes(normalizedQuery) ||
+        stop.normalizedFullName.includes(normalizedQuery) ||
+        stop.normalizedSubtitle.includes(normalizedQuery)
+    );
+    const combinedStops = new Map();
 
-    const matches = fallbackStops
+    for (const stop of matchingStops.concat(localMatches)) {
+      if (!combinedStops.has(stop.id)) {
+        combinedStops.set(stop.id, stop);
+      }
+    }
+
+    const matches = Array.from(combinedStops.values())
       .filter(
         (stop) =>
           stop.normalizedPrimaryName.includes(normalizedQuery) ||
@@ -197,26 +312,40 @@ export default async function handler(req, res) {
         return a.fullName.localeCompare(b.fullName, "cs");
       });
 
-    const uniqueByName = new Map();
+    const groupedMatches = groupStops(matches)
+      .map((stop) => ({
+        id: stop.id,
+        ids: stop.ids,
+        name: stop.name,
+        fullName: stop.fullName,
+        subtitle: stop.subtitle,
+        normalizedPrimaryName: normalizeText(stop.name),
+        normalizedFullName: normalizeText(stop.fullName),
+        normalizedSubtitle: normalizeText(stop.subtitle)
+      }))
+      .sort((a, b) => {
+        const scoreDiff = getScore(a, normalizedQuery) - getScore(b, normalizedQuery);
+        if (scoreDiff !== 0) {
+          return scoreDiff;
+        }
 
-    for (const stop of matches) {
-      const uniqueKey = stop.normalizedFullName || stop.normalizedPrimaryName;
+        const lengthDiff = a.fullName.length - b.fullName.length;
+        if (lengthDiff !== 0) {
+          return lengthDiff;
+        }
 
-      if (!uniqueByName.has(uniqueKey)) {
-        uniqueByName.set(uniqueKey, {
-          id: stop.id,
-          name: stop.name,
-          fullName: stop.fullName,
-          subtitle: stop.subtitle
-        });
-      }
+        return a.fullName.localeCompare(b.fullName, "cs");
+      })
+      .slice(0, MAX_RESULTS)
+      .map((stop) => ({
+        id: stop.id,
+        ids: stop.ids,
+        name: stop.name,
+        fullName: stop.fullName,
+        subtitle: stop.subtitle
+      }));
 
-      if (uniqueByName.size >= MAX_RESULTS) {
-        break;
-      }
-    }
-
-    return res.status(200).json(Array.from(uniqueByName.values()));
+    return res.status(200).json(groupedMatches);
   } catch (e) {
     console.error("SEARCH ERROR:", e);
     return res.status(500).json({ error: "Search failed", details: e.message });

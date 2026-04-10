@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Triply</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
       color-scheme: light;
@@ -217,6 +218,32 @@
       color: var(--muted);
     }
 
+    .location-debug {
+      margin-top: 14px;
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .nearest-map {
+      display: none;
+      height: 320px;
+      margin-top: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface);
+    }
+
+    .nearest-map.is-visible {
+      display: block;
+    }
+
+    .nearest-map .leaflet-popup-content {
+      margin: 10px 12px;
+      color: var(--text);
+    }
+
     .muted {
       color: var(--muted);
     }
@@ -266,6 +293,8 @@
           <button id="loadButton" type="button">Nacist odjezdy</button>
           <button id="nearestButton" type="button" class="secondary">Nejblizsi zastavka</button>
         </div>
+        <p id="locationDebug" class="location-debug muted">Souradnice zatim nejsou k dispozici.</p>
+        <div id="nearestMap" class="nearest-map" aria-label="Mapa nejblizsich zastavek"></div>
         <ul id="nearestList" class="nearest-list" aria-label="Nejblizsi zastavky"></ul>
         <p id="currentStop" class="current-stop muted">Zatim neni vybrana zadna zastavka.</p>
         <div id="status" class="status" aria-live="polite"></div>
@@ -274,6 +303,7 @@
     </div>
   </main>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const searchInput = document.getElementById("search");
     const stopIdInput = document.getElementById("stopId");
@@ -285,8 +315,25 @@
     const loadButton = document.getElementById("loadButton");
     const nearestButton = document.getElementById("nearestButton");
     const nearestList = document.getElementById("nearestList");
+    const locationDebug = document.getElementById("locationDebug");
+    const nearestMap = document.getElementById("nearestMap");
 
     let searchTimeout;
+    let searchRequestId = 0;
+    let map = null;
+    let nearestMarkers = null;
+
+    function toStopIds(stop) {
+      if (Array.isArray(stop?.ids) && stop.ids.length) {
+        return stop.ids.filter(Boolean);
+      }
+
+      if (typeof stop?.id === "string" && stop.id.trim()) {
+        return [stop.id.trim()];
+      }
+
+      return [];
+    }
 
     function setStatus(message, isError = false) {
       status.textContent = message;
@@ -314,13 +361,131 @@
       return (distance / 1000).toFixed(1) + " km";
     }
 
+    function formatCoordinate(value) {
+      if (!Number.isFinite(value)) {
+        return "";
+      }
+
+      return value.toFixed(6);
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
     function clearNearestStops() {
       nearestList.innerHTML = "";
     }
 
+    function renderLocationDebug(lat, lon, accuracy) {
+      const accuracyText = Number.isFinite(accuracy)
+        ? ", presnost " + Math.round(accuracy) + " m"
+        : "";
+
+      locationDebug.textContent =
+        "Tvoje souradnice: lat " +
+        formatCoordinate(lat) +
+        ", lon " +
+        formatCoordinate(lon) +
+        accuracyText;
+      locationDebug.classList.remove("muted");
+    }
+
+    function ensureNearestMap() {
+      if (!window.L) {
+        nearestMap.classList.remove("is-visible");
+        return null;
+      }
+
+      nearestMap.classList.add("is-visible");
+
+      if (!map) {
+        map = L.map(nearestMap, {
+          scrollWheelZoom: false
+        });
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap"
+        }).addTo(map);
+      }
+
+      if (nearestMarkers) {
+        nearestMarkers.clearLayers();
+      } else {
+        nearestMarkers = L.layerGroup().addTo(map);
+      }
+
+      return map;
+    }
+
+    function renderNearestMap(lat, lon, stops) {
+      const activeMap = ensureNearestMap();
+
+      if (!activeMap) {
+        locationDebug.textContent += " | Mapa se nepodarila nacist.";
+        return;
+      }
+
+      const bounds = L.latLngBounds();
+      const userPosition = L.latLng(lat, lon);
+      bounds.extend(userPosition);
+
+      L.circleMarker(userPosition, {
+        radius: 8,
+        color: "#0f766e",
+        fillColor: "#0f766e",
+        fillOpacity: 0.9,
+        weight: 2
+      })
+        .bindPopup("Tvoje poloha")
+        .addTo(nearestMarkers);
+
+      stops.forEach((stop) => {
+        if (!Number.isFinite(stop.lat) || !Number.isFinite(stop.lon)) {
+          return;
+        }
+
+        const stopPosition = L.latLng(stop.lat, stop.lon);
+        bounds.extend(stopPosition);
+
+        L.marker(stopPosition)
+          .bindPopup(
+            "<strong>" +
+              escapeHtml(stop.name || stop.fullName || stop.id || "Neznama zastavka") +
+              "</strong><br>" +
+              formatDistance(stop.distance) +
+              "<br>lat " +
+              formatCoordinate(stop.lat) +
+              ", lon " +
+              formatCoordinate(stop.lon)
+          )
+          .addTo(nearestMarkers);
+      });
+
+      setTimeout(() => {
+        activeMap.invalidateSize();
+
+        if (bounds.isValid()) {
+          activeMap.fitBounds(bounds, {
+            padding: [28, 28],
+            maxZoom: 17
+          });
+        }
+      }, 0);
+    }
+
     function applySelectedStop(stop, shouldLoad = true) {
-      stopIdInput.value = stop.id || "";
-      currentStop.textContent = "Zastavka: " + (stop.fullName || stop.name || stop.id || "neznama");
+      const stopIds = toStopIds(stop);
+      stopIdInput.value = stopIds.join(",");
+      currentStop.dataset.stopIds = stopIds.join(",");
+      currentStop.dataset.label = stop.fullName || stop.name || stop.id || "";
+      currentStop.textContent = "Zastavka: " + (currentStop.dataset.label || "neznama");
       currentStop.classList.remove("muted");
       clearNearestStops();
 
@@ -341,11 +506,18 @@
         title.className = "search-result-title";
         title.textContent = stop.name || stop.id || "Neznama zastavka";
 
+        const subtitle = document.createElement("span");
+        subtitle.className = "search-result-subtitle";
+        subtitle.textContent = stop.subtitle || (stop.fullName && stop.fullName !== stop.name ? stop.fullName : "");
+
         const distance = document.createElement("span");
         distance.className = "nearest-distance";
         distance.textContent = formatDistance(stop.distance);
 
         li.appendChild(title);
+        if (subtitle.textContent) {
+          li.appendChild(subtitle);
+        }
         if (distance.textContent) {
           li.appendChild(distance);
         }
@@ -367,6 +539,189 @@
       });
     }
 
+    function getDepartureTimestamp(departure) {
+      return (
+        departure.departure_timestamp?.predicted ||
+        departure.departure_timestamp?.scheduled ||
+        departure.arrival_timestamp?.predicted ||
+        departure.arrival_timestamp?.scheduled ||
+        null
+      );
+    }
+
+    function getDepartureDelayLabel(departure) {
+      const predicted =
+        departure.departure_timestamp?.predicted ||
+        departure.arrival_timestamp?.predicted;
+      const scheduled =
+        departure.departure_timestamp?.scheduled ||
+        departure.arrival_timestamp?.scheduled;
+
+      if (!predicted || !scheduled) {
+        return "";
+      }
+
+      const predictedTime = new Date(predicted).getTime();
+      const scheduledTime = new Date(scheduled).getTime();
+
+      if (Number.isNaN(predictedTime) || Number.isNaN(scheduledTime)) {
+        return "";
+      }
+
+      const delayMinutes = Math.round((predictedTime - scheduledTime) / 60000);
+
+      if (delayMinutes === 0) {
+        return "vcas";
+      }
+
+      if (delayMinutes > 0) {
+        return "+" + delayMinutes + " min";
+      }
+
+      return delayMinutes + " min";
+    }
+
+    function toBooleanFlag(value) {
+      if (typeof value === "boolean") {
+        return value;
+      }
+
+      if (typeof value === "number") {
+        return value > 0;
+      }
+
+      if (typeof value === "string") {
+        const normalized = value.trim().toLowerCase();
+        return ["1", "true", "yes", "ano", "available"].includes(normalized);
+      }
+
+      return false;
+    }
+
+    function getVehicleTypeEmoji(departure) {
+      const numericTypes = [
+        departure.route?.type,
+        departure.route?.gtfs_route_type,
+        departure.route?.route_type,
+        departure.route?.vehicle_type_id,
+        departure.trip?.vehicle_type_id
+      ]
+        .map((value) => Number(value))
+        .filter((value) => Number.isFinite(value));
+
+      if (numericTypes.some((value) => value === 1 || value === 400 || value === 401)) {
+        return "🚇";
+      }
+
+      if (numericTypes.some((value) => value === 0 || value === 900)) {
+        return "🚋";
+      }
+
+      if (numericTypes.some((value) => value === 11 || value === 800)) {
+        return "🚎";
+      }
+
+      if (numericTypes.some((value) => value === 3 || value === 700)) {
+        return "🚌";
+      }
+
+      const textFields = [
+        departure.route?.type,
+        departure.route?.vehicle_type,
+        departure.route?.vehicle_type_description,
+        departure.route?.vehicle_type_name,
+        departure.route?.transport_type,
+        departure.trip?.vehicle_type,
+        departure.vehicle_type,
+        departure.vehicle_type?.description_cs,
+        departure.vehicle_type?.description_en
+      ]
+        .filter(Boolean)
+        .map((value) => String(value).toLowerCase());
+
+      if (textFields.some((value) => value.includes("metro") || value.includes("subway"))) {
+        return "🚇";
+      }
+
+      if (textFields.some((value) => value.includes("trolley") || value.includes("trolej"))) {
+        return "🚎";
+      }
+
+      if (textFields.some((value) => value.includes("tram"))) {
+        return "🚋";
+      }
+
+      if (textFields.some((value) => value.includes("bus"))) {
+        return "🚌";
+      }
+
+      return "🚍";
+    }
+
+    function getDepartureFeatures(departure, vehicleEmoji) {
+      if (vehicleEmoji !== "🚋") {
+        return "";
+      }
+
+      const lowFloor = [
+        departure.trip?.is_wheelchair_accessible,
+        departure.trip?.wheelchair_accessible,
+        departure.trip?.wheelchair_accessibility,
+        departure.trip?.is_low_floor,
+        departure.trip?.low_floor,
+        departure.trip?.lowFloor,
+        departure.vehicle?.is_wheelchair_accessible,
+        departure.vehicle?.is_low_floor,
+        departure.is_wheelchair_accessible,
+        departure.is_low_floor
+      ].some(toBooleanFlag);
+
+      const airConditioned = [
+        departure.trip?.is_air_conditioned,
+        departure.trip?.air_conditioned,
+        departure.trip?.airConditioned,
+        departure.vehicle?.is_air_conditioned,
+        departure.vehicle?.air_conditioned,
+        departure.vehicle?.airConditioned,
+        departure.is_air_conditioned
+      ].some(toBooleanFlag);
+
+      return (lowFloor ? " ♿" : "") + (airConditioned ? " ❄️" : "");
+    }
+
+    function getDepartureDirection(departure) {
+      return (
+        departure.trip?.headsign ||
+        departure.stop?.platform_name ||
+        departure.stop?.name ||
+        "Bez cilove stanice"
+      );
+    }
+
+    function normalizeDeparturesResponse(payload) {
+      if (Array.isArray(payload)) {
+        return payload.flatMap((item) => normalizeDeparturesResponse(item));
+      }
+
+      if (Array.isArray(payload?.departures)) {
+        return payload.departures;
+      }
+
+      if (Array.isArray(payload?.data?.departures)) {
+        return payload.data.departures;
+      }
+
+      if (Array.isArray(payload?.stops)) {
+        return payload.stops.flatMap((item) => normalizeDeparturesResponse(item));
+      }
+
+      if (Array.isArray(payload?.data)) {
+        return payload.data.flatMap((item) => normalizeDeparturesResponse(item));
+      }
+
+      return [];
+    }
+
     function renderDepartures(departures) {
       list.innerHTML = "";
 
@@ -379,11 +734,12 @@
 
       departures.forEach((departure) => {
         const li = document.createElement("li");
-        const timestamp =
-          departure.departure_timestamp?.predicted ||
-          departure.departure_timestamp?.scheduled;
+        const timestamp = getDepartureTimestamp(departure);
         const route = departure.route?.short_name || "Spoj";
-        const headsign = departure.trip?.headsign || "Bez cilove stanice";
+        const headsign = getDepartureDirection(departure);
+        const vehicleEmoji = getVehicleTypeEmoji(departure);
+        const featureIcons = getDepartureFeatures(departure, vehicleEmoji);
+        const delayLabel = getDepartureDelayLabel(departure);
 
         let formatted = "cas neni k dispozici";
         if (timestamp) {
@@ -396,7 +752,17 @@
           }
         }
 
-        li.textContent = route + " -> " + headsign + " (" + formatted + ")";
+        li.textContent =
+          vehicleEmoji +
+          " " +
+          route +
+          featureIcons +
+          " -> " +
+          headsign +
+          " (" +
+          formatted +
+          (delayLabel ? ", " + delayLabel : "") +
+          ")";
         list.appendChild(li);
       });
     }
@@ -433,7 +799,14 @@
       }
 
       clearNearestStops();
-      currentStop.textContent = "Zastavka: " + stopId;
+      const knownStopIds = currentStop.dataset.stopIds || "";
+      const currentLabel =
+        knownStopIds === stopId
+          ? currentStop.dataset.label || stopId
+          : stopId;
+      currentStop.dataset.stopIds = stopId;
+      currentStop.dataset.label = currentLabel;
+      currentStop.textContent = "Zastavka: " + currentLabel;
       currentStop.classList.remove("muted");
       setStatus("Nacitam odjezdy...");
       setLoadingState(loadButton, true);
@@ -443,11 +816,13 @@
           "/api/departures?stopId=" + encodeURIComponent(stopId),
           "Nepodarilo se nacist odjezdy."
         );
-        const departures =
-          data.departures ||
-          data[0]?.departures ||
-          data.data?.departures ||
-          [];
+        const departures = normalizeDeparturesResponse(data).sort((a, b) => {
+          const first = getDepartureTimestamp(a);
+          const second = getDepartureTimestamp(b);
+          const firstTime = first ? new Date(first).getTime() : Number.POSITIVE_INFINITY;
+          const secondTime = second ? new Date(second).getTime() : Number.POSITIVE_INFINITY;
+          return firstTime - secondTime;
+        });
 
         renderDepartures(departures);
         setStatus("Nacteno " + departures.length + " odjezdu.");
@@ -475,6 +850,8 @@
           try {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
+            const accuracy = pos.coords.accuracy;
+            renderLocationDebug(lat, lon, accuracy);
             const stops = await fetchJsonOrThrow(
               "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon) + "&limit=10",
               "Nepodarilo se nacist okoli zastavky."
@@ -486,7 +863,8 @@
             }
 
             renderNearestStops(stops);
-            setStatus("Vyber jednu ze 3 nejblizsich zastavek.");
+            renderNearestMap(lat, lon, stops);
+            setStatus("Vyber jednu z nejblizsich zastavek.");
           } catch (error) {
             console.error("NEAREST ERROR:", error);
             setStatus(error.message || "Nacitani nejblizsi zastavky selhalo.", true);
@@ -550,6 +928,8 @@
 
     async function searchStop() {
       const query = searchInput.value.trim();
+      const requestId = searchRequestId + 1;
+      searchRequestId = requestId;
 
       if (query.length < 2) {
         results.innerHTML = "";
@@ -564,8 +944,17 @@
           "/api/search?name=" + encodeURIComponent(query),
           "Vyhledavani zastavek selhalo."
         );
+
+        if (requestId !== searchRequestId || query !== searchInput.value.trim()) {
+          return;
+        }
+
         renderSearchResults(Array.isArray(data) ? data : []);
       } catch (error) {
+        if (requestId !== searchRequestId || query !== searchInput.value.trim()) {
+          return;
+        }
+
         console.error("SEARCH ERROR:", error);
         results.innerHTML = "";
         setSearchStatus(error.message || "Vyhledavani selhalo.", true);

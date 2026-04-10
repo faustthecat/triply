@@ -4,16 +4,22 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Missing GOLEMIO_KEY" });
     }
 
-    const stopId = String(req.query.stopId || "").trim();
+    const stopIds = String(req.query.stopId || "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
 
-    if (!stopId) {
+    if (!stopIds.length) {
       return res.status(400).json({ error: "Missing stopId" });
     }
 
     const params = new URLSearchParams({
-      ids: stopId,
       limit: "10"
     });
+
+    for (const stopId of stopIds) {
+      params.append("ids[]", stopId);
+    }
 
     const response = await fetch(
       "https://api.golemio.cz/v2/pid/departureboards?" + params.toString(),
@@ -27,7 +33,10 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("DEPARTURES API ERROR:", response.status, errorText);
-      return res.status(response.status).json({ error: "Departures lookup failed" });
+      return res.status(response.status).json({
+        error: "Departures lookup failed",
+        details: errorText
+      });
     }
 
     const data = await response.json();
