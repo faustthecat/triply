@@ -387,6 +387,57 @@
       color: var(--muted);
     }
 
+    .nearest-loader {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(15, 118, 110, 0.3);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #effaf6 0%, #f8fdfb 100%);
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nearest-loader.is-active {
+      display: flex;
+    }
+
+    .nearest-loader-bus {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #0f5e57;
+      font-weight: 700;
+    }
+
+    .nearest-loader-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .nearest-loader-wheel {
+      width: 18px;
+      height: 18px;
+      border: 3px solid #0f766e;
+      border-top-color: #8bd8cf;
+      border-radius: 999px;
+      animation: spin-wheel 0.7s linear infinite;
+    }
+
+    .nearest-loader-text {
+      font-size: 0.92rem;
+      color: #0f5e57;
+    }
+
+    @keyframes spin-wheel {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
     .location-debug {
       margin-top: 14px;
       font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
@@ -402,23 +453,166 @@
       background: var(--surface);
     }
 
-    .nearest-map {
+    .stop-map-panel {
+      margin: 0 0 18px;
+      padding: 16px;
+      border: 1px solid rgba(15, 118, 110, 0.2);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(238, 248, 244, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%);
+    }
+
+    .stop-map-panel[hidden] {
       display: none;
+    }
+
+    .stop-map-title {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      color: #0b4a45;
+    }
+
+    .stop-map-summary {
+      margin-bottom: 12px;
+      font-size: 0.92rem;
+    }
+
+    .selected-stop-map {
       height: 320px;
-      margin-top: 14px;
       overflow: hidden;
       border: 1px solid var(--border);
       border-radius: 18px;
       background: var(--surface);
+      margin-top: 12px;
     }
 
-    .nearest-map.is-visible {
-      display: block;
+    .departures-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 12px;
+      margin-top: 16px;
     }
 
-    .nearest-map .leaflet-popup-content {
-      margin: 10px 12px;
+    .departures-toolbar .field {
+      flex: 1 1 180px;
+      margin-bottom: 0;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
       color: var(--text);
+      font: inherit;
+    }
+
+    input[type="number"]:focus {
+      outline: 2px solid rgba(15, 118, 110, 0.2);
+      border-color: var(--accent);
+    }
+
+    .route-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .route-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: #eef2f6;
+      color: #0f172a;
+      font-size: 0.84rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .route-chip.route-type-metro {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .route-chip.route-type-tram {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .route-chip.route-type-bus {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .route-chip.route-type-trolleybus {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
+    .route-chip.route-type-service {
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    .route-chip.is-highlighted {
+      box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .route-chip-distance {
+      font-weight: 600;
+      opacity: 0.7;
+    }
+
+    .line-tooltip {
+      background: rgba(15, 23, 42, 0.9);
+      border: 0;
+      border-radius: 999px;
+      box-shadow: none;
+      color: #fff;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 2px 8px;
+    }
+
+    .line-tooltip:before {
+      display: none;
+    }
+
+    .vehicle-marker {
+      position: relative;
+      width: 30px;
+      height: 30px;
+    }
+
+    .vehicle-marker-arrow {
+      position: absolute;
+      top: 1px;
+      left: 8px;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 14px solid #b45309;
+      filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.22));
+      transform-origin: 50% 18px;
+    }
+
+    .vehicle-marker-dot {
+      position: absolute;
+      left: 7px;
+      top: 11px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 2px solid #b45309;
+      background: #f59e0b;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.18);
     }
 
     .muted {
@@ -469,14 +663,15 @@
             <div class="actions">
               <button id="nearestButton" type="button" class="cta-location">Použít moji aktuální polohu</button>
             </div>
+            <div id="nearestLoader" class="nearest-loader" role="status" aria-live="polite" aria-hidden="true">
+              <span class="nearest-loader-bus" aria-hidden="true">
+                <span class="nearest-loader-icon">🚌</span>
+                <span class="nearest-loader-wheel"></span>
+              </span>
+              <span class="nearest-loader-text">Hledám nejbližší zastávku...</span>
+            </div>
             <h3 id="nearestHeading" hidden>Zastávky v okolí</h3>
             <ul id="nearestList" class="nearest-list" aria-label="Nejbližší zastávky"></ul>
-
-            <details id="locationDebugPanel" class="location-debug-panel">
-              <summary>Technické detaily polohy</summary>
-              <p id="locationDebug" class="location-debug muted">Souřadnice zatím nejsou k dispozici.</p>
-              <div id="nearestMap" class="nearest-map" aria-label="Mapa nejbližších zastávek"></div>
-            </details>
           </article>
 
           <article class="mode-card" aria-labelledby="mode-text-heading">
@@ -490,24 +685,26 @@
             <ul id="results" aria-label="Výsledky hledání"></ul>
           </article>
         </div>
+
+        <div class="departures-toolbar">
+          <div class="field">
+            <label for="departuresLimit">Kolik nejbližších spojů zobrazit</label>
+            <input id="departuresLimit" type="number" min="1" max="40" step="1" value="5" inputmode="numeric" />
+          </div>
+        </div>
       </section>
 
       <section id="departuresPanel" class="panel" aria-labelledby="departures-heading">
         <h2 id="departures-heading">Odjezdy</h2>
         <p id="currentStop" class="current-stop selected-stop muted">Zatím není vybraná žádná zastávka.</p>
-        <details class="advanced">
-          <summary>Nouzově: ručně zadat ID zastávky</summary>
-          <p class="advanced-note">Použij jen pokud víš přesné ID zastávky. Pro běžné použití vyber zastávku výše.</p>
-          <div class="field">
-            <label for="stopId">ID zastávky</label>
-            <input id="stopId" placeholder="Např. U699Z1P" />
-          </div>
-          <div class="actions">
-            <button id="loadButton" type="button">Načíst odjezdy</button>
-          </div>
-        </details>
         <div id="status" class="status" aria-live="polite"></div>
         <ul id="list" aria-label="Seznam odjezdů"></ul>
+        <div id="stopMapPanel" class="stop-map-panel" hidden>
+          <h3 class="stop-map-title">Poloha spojů</h3>
+          <p id="stopMapSummary" class="stop-map-summary muted">Mapa živých poloh vozidel se načte po výběru zastávky.</p>
+          <div id="nearbyRoutes" class="route-chip-list" aria-label="Spoje zobrazené na mapě"></div>
+          <div id="selectedStopMap" class="selected-stop-map" aria-label="Mapa vybrané zastávky a polohy vozidel"></div>
+        </div>
       </section>
     </div>
   </main>
@@ -515,26 +712,32 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const searchInput = document.getElementById("search");
-    const stopIdInput = document.getElementById("stopId");
+    const departuresLimit = document.getElementById("departuresLimit");
     const results = document.getElementById("results");
     const list = document.getElementById("list");
     const status = document.getElementById("status");
     const searchStatus = document.getElementById("searchStatus");
     const currentStop = document.getElementById("currentStop");
     const departuresPanel = document.getElementById("departuresPanel");
-    const loadButton = document.getElementById("loadButton");
+    const stopMapPanel = document.getElementById("stopMapPanel");
+    const stopMapSummary = document.getElementById("stopMapSummary");
+    const selectedStopMap = document.getElementById("selectedStopMap");
+    const nearbyRoutes = document.getElementById("nearbyRoutes");
     const nearestButton = document.getElementById("nearestButton");
+    const nearestLoader = document.getElementById("nearestLoader");
     const nearestList = document.getElementById("nearestList");
     const nearestHeading = document.getElementById("nearestHeading");
-    const locationDebug = document.getElementById("locationDebug");
-    const nearestMap = document.getElementById("nearestMap");
 
     let searchTimeout;
     let searchRequestId = 0;
     let activeSearchController = null;
     const searchCache = new Map();
-    let map = null;
-    let nearestMarkers = null;
+    let selectedMap = null;
+    let selectedMapMarkers = null;
+    let vehicleRefreshTimer = null;
+    let currentMapContext = null;
+    let isRefreshingVehicles = false;
+    let openPopupTripId = null;
 
     function toStopIds(stop) {
       if (Array.isArray(stop?.ids) && stop.ids.length) {
@@ -562,6 +765,15 @@
       button.disabled = isLoading;
     }
 
+    function setNearestLoading(isLoading) {
+      if (!nearestLoader) {
+        return;
+      }
+
+      nearestLoader.classList.toggle("is-active", isLoading);
+      nearestLoader.setAttribute("aria-hidden", isLoading ? "false" : "true");
+    }
+
     function formatDistance(distance) {
       if (!Number.isFinite(distance)) {
         return "";
@@ -580,6 +792,18 @@
       }
 
       return value.toFixed(6);
+    }
+
+    function pluralize(count, one, few, many) {
+      if (count === 1) {
+        return one;
+      }
+
+      if (count >= 2 && count <= 4) {
+        return few;
+      }
+
+      return many;
     }
 
     function escapeHtml(value) {
@@ -604,116 +828,440 @@
       return name + (stop?.isMetro ? " (M)" : "");
     }
 
+    function setCurrentStop(stopIds, label, lat, lon) {
+      currentStop.dataset.stopIds = stopIds;
+      currentStop.dataset.label = label;
+      currentStop.dataset.lat = Number.isFinite(lat) ? String(lat) : "";
+      currentStop.dataset.lon = Number.isFinite(lon) ? String(lon) : "";
+      currentStop.textContent = "Vybraná zastávka: " + (label || "neznámá");
+      currentStop.classList.remove("muted");
+    }
+
+    function clearStopMap() {
+      stopVehicleRefresh();
+      currentMapContext = null;
+      stopMapPanel.hidden = true;
+      stopMapSummary.textContent = "Mapa živých poloh vozidel se načte po výběru zastávky.";
+      stopMapSummary.classList.add("muted");
+      nearbyRoutes.innerHTML = "";
+
+      if (selectedMapMarkers) {
+        selectedMapMarkers.clearLayers();
+      }
+    }
+
     function clearNearestStops() {
       nearestList.innerHTML = "";
       nearestHeading.hidden = true;
     }
 
-    function renderLocationDebug(lat, lon, accuracy) {
-      const accuracyText = Number.isFinite(accuracy)
-        ? ", presnost " + Math.round(accuracy) + " m"
-        : "";
-
-      locationDebug.textContent =
-        "Tvoje souřadnice: lat " +
-        formatCoordinate(lat) +
-        ", lon " +
-        formatCoordinate(lon) +
-        accuracyText;
-      locationDebug.classList.remove("muted");
-    }
-
-    function ensureNearestMap() {
+    function ensureSelectedStopMap() {
       if (!window.L) {
-        nearestMap.classList.remove("is-visible");
         return null;
       }
 
-      nearestMap.classList.add("is-visible");
-
-      if (!map) {
-        map = L.map(nearestMap, {
+      if (!selectedMap) {
+        selectedMap = L.map(selectedStopMap, {
           scrollWheelZoom: false
         });
 
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 19,
           attribution: "&copy; OpenStreetMap"
-        }).addTo(map);
+        }).addTo(selectedMap);
       }
 
-      if (nearestMarkers) {
-        nearestMarkers.clearLayers();
-      } else {
-        nearestMarkers = L.layerGroup().addTo(map);
+      if (!selectedMapMarkers) {
+        selectedMapMarkers = L.layerGroup().addTo(selectedMap);
       }
 
-      return map;
+      return selectedMap;
     }
 
-    function renderNearestMap(lat, lon, stops) {
-      const activeMap = ensureNearestMap();
+    function getRouteTypeClass(type) {
+      return "route-type-" + (type || "service");
+    }
 
-      if (!activeMap) {
-        locationDebug.textContent += " | Mapa se nepodařila načíst.";
+    function getRouteTypeEmoji(route) {
+      if (route?.type === "metro") {
+        return "🚇";
+      }
+
+      if (route?.type === "tram") {
+        return "🚋";
+      }
+
+      if (route?.type === "trolleybus") {
+        return "🚎";
+      }
+
+      if (route?.type === "bus") {
+        return "🚌";
+      }
+
+      return "🚍";
+    }
+
+    function getDepartureTripId(departure) {
+      return String(
+        departure?.trip?.id ||
+          departure?.trip?.gtfs_trip_id ||
+          departure?.trip?.trip_id ||
+          departure?.trip_id ||
+          ""
+      ).trim();
+    }
+
+    function getEmbeddedVehiclePosition(departure) {
+      const candidates = [
+        departure?.vehicle?.position,
+        departure?.vehicle?.last_position,
+        departure?.trip?.vehicle?.position,
+        departure?.trip?.vehicle?.last_position,
+        departure?.position,
+        departure?.last_position
+      ].filter(Boolean);
+
+      for (const candidate of candidates) {
+        const lat = Number(
+          candidate?.latitude ??
+            candidate?.lat ??
+            candidate?.geometry?.coordinates?.[1]
+        );
+        const lon = Number(
+          candidate?.longitude ??
+            candidate?.lon ??
+            candidate?.lng ??
+            candidate?.geometry?.coordinates?.[0]
+        );
+
+        if (Number.isFinite(lat) && Number.isFinite(lon)) {
+          const updatedAt = candidate?.timestamp ? new Date(candidate.timestamp) : null;
+          const lastUpdated =
+            updatedAt && !Number.isNaN(updatedAt.getTime())
+              ? updatedAt.toLocaleTimeString("cs-CZ", {
+                  hour: "2-digit",
+                  minute: "2-digit"
+                })
+              : "";
+
+          return {
+            tripId: getDepartureTripId(departure),
+            lat,
+            lon,
+            shortName: departure.route?.short_name || "Spoj",
+            headsign: getDepartureDirection(departure),
+            type: departure.mapRouteType || "service",
+            vehicleTypeLabel: getVehicleTypeLabel(departure),
+            lowFloor: isDepartureLowFloor(departure),
+            airConditioned: isDepartureAirConditioned(departure),
+            delayMinutes: getDepartureDelayMinutes(departure),
+            bearing: Number(candidate?.bearing),
+            lastUpdated
+          };
+        }
+      }
+
+      return null;
+    }
+
+    function createVehicleMarkerIcon(vehicle) {
+      const bearing = Number.isFinite(vehicle?.bearing) ? vehicle.bearing : 0;
+      return L.divIcon({
+        className: "",
+        html:
+          '<div class="vehicle-marker">' +
+            '<div class="vehicle-marker-arrow" style="transform: rotate(' + bearing + 'deg);"></div>' +
+            '<div class="vehicle-marker-dot"></div>' +
+          "</div>",
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -12]
+      });
+    }
+
+    function renderVehicleChips(vehicles) {
+      nearbyRoutes.innerHTML = "";
+
+      vehicles.forEach((vehicle) => {
+        const chip = document.createElement("span");
+        chip.className = "route-chip " + getRouteTypeClass(vehicle.type);
+        chip.classList.add("is-highlighted");
+
+        const emoji = document.createElement("span");
+        emoji.textContent = getRouteTypeEmoji(vehicle);
+
+        const label = document.createElement("span");
+        label.textContent = vehicle.shortName || "Spoj";
+
+        chip.appendChild(emoji);
+        chip.appendChild(label);
+
+        if (vehicle.headsign) {
+          chip.title = vehicle.headsign;
+        }
+
+        nearbyRoutes.appendChild(chip);
+      });
+    }
+
+    function formatPopupTime(value) {
+      if (!value) {
+        return "";
+      }
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return "";
+      }
+
+      return date.toLocaleTimeString("cs-CZ", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function getVehicleAmenityEmoji(vehicle) {
+      return (vehicle.lowFloor ? " ♿" : "") + (vehicle.airConditioned ? " ❄️" : "");
+    }
+
+    function formatDelayMinutes(value) {
+      if (!Number.isFinite(value)) {
+        return "";
+      }
+
+      if (value === 0) {
+        return "0 min";
+      }
+
+      return (value > 0 ? "+" : "") + value + " min";
+    }
+
+    function renderSelectedStopMap(stop, vehicles, options = {}) {
+      const preserveView = Boolean(options.preserveView);
+
+      if (!Number.isFinite(stop?.lat) || !Number.isFinite(stop?.lon)) {
+        clearStopMap();
         return;
       }
 
-      const bounds = L.latLngBounds();
-      const userPosition = L.latLng(lat, lon);
-      bounds.extend(userPosition);
+      const activeMap = ensureSelectedStopMap();
+      if (!activeMap) {
+        clearStopMap();
+        return;
+      }
 
-      L.circleMarker(userPosition, {
-        radius: 8,
+      // Before clearing, remember which popup was open
+      if (selectedMapMarkers) {
+        selectedMapMarkers.clearLayers();
+      }
+
+      stopMapPanel.hidden = false;
+      stopMapSummary.classList.remove("muted");
+      stopMapSummary.textContent =
+        vehicles.length
+          ? "Mapa ukazuje vybranou zastávku a aktuální polohy vozidel pro právě zobrazené nejbližší spoje."
+          : "Vybraná zastávka je na mapě, ale PID teď pro právě zobrazené spoje neposkytl živou polohu vozidla.";
+
+      renderVehicleChips(vehicles);
+
+      const bounds = L.latLngBounds();
+      const stopPoint = L.latLng(stop.lat, stop.lon);
+      bounds.extend(stopPoint);
+
+      L.circleMarker(stopPoint, {
+        radius: 10,
         color: "#0f766e",
         fillColor: "#0f766e",
-        fillOpacity: 0.9,
-        weight: 2
+        fillOpacity: 0.95,
+        weight: 3
       })
-        .bindPopup("Tvoje poloha")
-        .addTo(nearestMarkers);
+        .bindPopup("<strong>" + escapeHtml(stop.label || "Vybraná zastávka") + "</strong>")
+        .addTo(selectedMapMarkers);
 
-      stops.forEach((stop) => {
-        if (!Number.isFinite(stop.lat) || !Number.isFinite(stop.lon)) {
+      vehicles.forEach((vehicle) => {
+        if (!Number.isFinite(vehicle.lat) || !Number.isFinite(vehicle.lon)) {
           return;
         }
 
-        const stopPosition = L.latLng(stop.lat, stop.lon);
-        bounds.extend(stopPosition);
+        const point = L.latLng(vehicle.lat, vehicle.lon);
+        bounds.extend(point);
 
-        L.marker(stopPosition)
-          .bindPopup(
-            "<strong>" +
-              escapeHtml(formatStopName(stop)) +
-              "</strong><br>" +
-              formatDistance(stop.distance) +
-              "<br>lat " +
-              formatCoordinate(stop.lat) +
-              ", lon " +
-              formatCoordinate(stop.lon)
-          )
-          .addTo(nearestMarkers);
+        const marker = L.marker(point, {
+          icon: createVehicleMarkerIcon(vehicle)
+        }).addTo(selectedMapMarkers);
+
+        marker.bindPopup(
+          "<strong>" +
+            escapeHtml((vehicle.shortName || "Spoj") + (vehicle.headsign ? " → " + vehicle.headsign : "")) +
+            escapeHtml(getVehicleAmenityEmoji(vehicle)) +
+            "</strong><br>" +
+            "Typ: " + escapeHtml(vehicle.vehicleTypeLabel || "Spoj") +
+            ((vehicle.lastStopName || vehicle.lastStopId)
+              ? "<br>Poslední zastávka: " + escapeHtml(vehicle.lastStopName || vehicle.lastStopId)
+              : "") +
+            (vehicle.lastStopDepartureTime ? "<br>Odjela v: " + escapeHtml(formatPopupTime(vehicle.lastStopDepartureTime)) : "") +
+            ((vehicle.nextStopName || vehicle.nextStopId)
+              ? "<br>Příští zastávka: " + escapeHtml(vehicle.nextStopName || vehicle.nextStopId)
+              : "") +
+            (vehicle.nextStopArrivalTime ? "<br>Příjízdí v: " + escapeHtml(formatPopupTime(vehicle.nextStopArrivalTime)) : "") +
+            (Number.isFinite(vehicle.delayMinutes)
+              ? "<br>Zpoždění: " + escapeHtml(formatDelayMinutes(vehicle.delayMinutes))
+              : "") +
+            "<br>Aktuální poloha vozidla" +
+            (vehicle.lastUpdated ? "<br>Aktualizace: " + escapeHtml(vehicle.lastUpdated) : ""),
+          { autoClose: false, closeOnClick: false }
+        );
+
+        marker.on("popupopen", () => {
+          openPopupTripId = vehicle.tripId || null;
+        });
+
+        marker.on("popupclose", () => {
+          if (openPopupTripId === vehicle.tripId) {
+            openPopupTripId = null;
+          }
+        });
+
+        if (openPopupTripId && openPopupTripId === vehicle.tripId) {
+          marker.openPopup();
+        }
+
+        if (vehicle.shortName) {
+          marker.bindTooltip(vehicle.shortName, {
+            permanent: true,
+            direction: "top",
+            offset: [0, -8],
+            className: "line-tooltip"
+          });
+        }
       });
 
       setTimeout(() => {
         activeMap.invalidateSize();
 
-        if (bounds.isValid()) {
+        if (!preserveView && bounds.isValid()) {
           activeMap.fitBounds(bounds, {
             padding: [28, 28],
-            maxZoom: 17
+            maxZoom: vehicles.length ? 15 : 17
           });
+        } else if (!preserveView) {
+          activeMap.setView(stopPoint, 16);
         }
       }, 0);
     }
 
+    async function loadVehiclePositions(departures) {
+      const directVehicles = departures
+        .map((departure) => getEmbeddedVehiclePosition(departure))
+        .filter((vehicle) => vehicle && Number.isFinite(vehicle.lat) && Number.isFinite(vehicle.lon));
+      const knownTripIds = new Set(directVehicles.map((vehicle) => vehicle.tripId).filter(Boolean));
+
+      const tripIds = Array.from(
+        new Set(
+          departures
+            .map((departure) => getDepartureTripId(departure))
+            .filter(Boolean)
+        )
+      ).filter((tripId) => !knownTripIds.has(tripId));
+
+      if (!tripIds.length) {
+        return directVehicles;
+      }
+
+      const payload = await fetchJsonOrThrow(
+        "/api/vehicle-positions?tripIds=" + encodeURIComponent(tripIds.join(",")),
+        "Nepodařilo se načíst živé polohy vozidel."
+      );
+
+      const positions = Array.isArray(payload?.vehicles) ? payload.vehicles : [];
+      const departuresByTripId = new Map();
+
+      departures.forEach((departure) => {
+        const tripId = getDepartureTripId(departure);
+        if (tripId && !departuresByTripId.has(tripId)) {
+          departuresByTripId.set(tripId, departure);
+        }
+      });
+
+      const apiVehicles = positions
+        .map((position) => {
+          const departure = departuresByTripId.get(position.tripId);
+          if (!departure) {
+            return null;
+          }
+
+          const updatedAt = position.timestamp ? new Date(position.timestamp) : null;
+          const lastUpdated =
+            updatedAt && !Number.isNaN(updatedAt.getTime())
+              ? updatedAt.toLocaleTimeString("cs-CZ", {
+                  hour: "2-digit",
+                  minute: "2-digit"
+                })
+              : "";
+
+          return {
+            tripId: position.tripId,
+            lat: Number(position.lat),
+            lon: Number(position.lon),
+            shortName: departure.route?.short_name || position.routeShortName || "Spoj",
+            headsign: getDepartureDirection(departure),
+            type: departure.mapRouteType || "service",
+            vehicleTypeLabel: getVehicleTypeLabel(departure),
+            lowFloor: isDepartureLowFloor(departure),
+            airConditioned: isDepartureAirConditioned(departure),
+            nextStopName: position.nextStopName || "",
+            nextStopId: position.nextStopId || "",
+            nextStopArrivalTime: position.nextStopArrivalTime || "",
+            lastStopName: position.lastStopName || "",
+            lastStopId: position.lastStopId || "",
+            lastStopDepartureTime: position.lastStopDepartureTime || "",
+            delayMinutes: Number.isFinite(Number(position.delayMinutes))
+              ? Number(position.delayMinutes)
+              : Math.round(Number(position.delay) / 60),
+            bearing: Number(position.bearing),
+            lastUpdated
+          };
+        })
+        .filter((vehicle) => vehicle && Number.isFinite(vehicle.lat) && Number.isFinite(vehicle.lon));
+
+      return directVehicles.concat(
+        apiVehicles.filter((vehicle) => !knownTripIds.has(vehicle.tripId))
+      );
+    }
+
+    function stopVehicleRefresh() {
+      if (vehicleRefreshTimer) {
+        clearInterval(vehicleRefreshTimer);
+        vehicleRefreshTimer = null;
+      }
+    }
+
+    async function refreshVehicleMapPositions() {
+      if (isRefreshingVehicles || !currentMapContext?.departures?.length || !currentMapContext?.stop) {
+        return;
+      }
+
+      isRefreshingVehicles = true;
+
+      try {
+        const vehicles = await loadVehiclePositions(currentMapContext.departures);
+        renderSelectedStopMap(currentMapContext.stop, vehicles, { preserveView: true });
+      } catch (error) {
+        console.error("VEHICLE REFRESH ERROR:", error);
+      } finally {
+        isRefreshingVehicles = false;
+      }
+    }
+
+    function startVehicleRefresh() {
+      stopVehicleRefresh();
+      vehicleRefreshTimer = setInterval(refreshVehicleMapPositions, 5000);
+    }
+
     function applySelectedStop(stop, shouldLoad = true) {
       const stopIds = toStopIds(stop);
-      stopIdInput.value = stopIds.join(",");
-      currentStop.dataset.stopIds = stopIds.join(",");
-      currentStop.dataset.label = formatStopName(stop);
-      currentStop.textContent = "Vybraná zastávka: " + (currentStop.dataset.label || "neznámá");
-      currentStop.classList.remove("muted");
+      setCurrentStop(stopIds.join(","), formatStopName(stop), Number(stop?.lat), Number(stop?.lon));
       clearNearestStops();
 
       if (shouldLoad) {
@@ -811,6 +1359,28 @@
       return delayMinutes + " min";
     }
 
+    function getDepartureDelayMinutes(departure) {
+      const predicted =
+        departure.departure_timestamp?.predicted ||
+        departure.arrival_timestamp?.predicted;
+      const scheduled =
+        departure.departure_timestamp?.scheduled ||
+        departure.arrival_timestamp?.scheduled;
+
+      if (!predicted || !scheduled) {
+        return NaN;
+      }
+
+      const predictedTime = new Date(predicted).getTime();
+      const scheduledTime = new Date(scheduled).getTime();
+
+      if (Number.isNaN(predictedTime) || Number.isNaN(scheduledTime)) {
+        return NaN;
+      }
+
+      return Math.round((predictedTime - scheduledTime) / 60000);
+    }
+
     function toBooleanFlag(value) {
       if (typeof value === "boolean") {
         return value;
@@ -822,10 +1392,81 @@
 
       if (typeof value === "string") {
         const normalized = value.trim().toLowerCase();
-        return ["1", "true", "yes", "ano", "available"].includes(normalized);
+
+        if (["0", "false", "no", "ne", "none", "unknown", "n/a", "na"].includes(normalized)) {
+          return false;
+        }
+
+        return [
+          "1",
+          "true",
+          "yes",
+          "ano",
+          "available",
+          "partial",
+          "partly",
+          "full",
+          "fully",
+          "low_floor",
+          "air_conditioned"
+        ].includes(normalized);
+      }
+
+      if (value && typeof value === "object") {
+        const nested = [
+          value.value,
+          value.status,
+          value.available,
+          value.enabled,
+          value.is_available,
+          value.low_floor,
+          value.air_conditioned,
+          value.wheelchair_accessible
+        ];
+
+        return nested.some(toBooleanFlag);
       }
 
       return false;
+    }
+
+    function getLowFloorCandidates(departure) {
+      return [
+        departure.trip?.is_wheelchair_accessible,
+        departure.trip?.wheelchair_accessible,
+        departure.trip?.wheelchair_accessibility,
+        departure.trip?.is_low_floor,
+        departure.trip?.low_floor,
+        departure.trip?.lowFloor,
+        departure.trip?.properties?.is_wheelchair_accessible,
+        departure.trip?.properties?.wheelchair_accessible,
+        departure.trip?.properties?.is_low_floor,
+        departure.vehicle?.is_wheelchair_accessible,
+        departure.vehicle?.wheelchair_accessible,
+        departure.vehicle?.is_low_floor,
+        departure.vehicle?.low_floor,
+        departure.vehicle_type?.is_wheelchair_accessible,
+        departure.vehicle_type?.wheelchair_accessible,
+        departure.vehicle_type?.is_low_floor,
+        departure.is_wheelchair_accessible,
+        departure.is_low_floor
+      ];
+    }
+
+    function getAirConditionedCandidates(departure) {
+      return [
+        departure.trip?.is_air_conditioned,
+        departure.trip?.air_conditioned,
+        departure.trip?.airConditioned,
+        departure.trip?.properties?.is_air_conditioned,
+        departure.trip?.properties?.air_conditioned,
+        departure.vehicle?.is_air_conditioned,
+        departure.vehicle?.air_conditioned,
+        departure.vehicle?.airConditioned,
+        departure.vehicle_type?.is_air_conditioned,
+        departure.vehicle_type?.air_conditioned,
+        departure.is_air_conditioned
+      ];
     }
 
     function getVehicleTypeEmoji(departure) {
@@ -888,33 +1529,65 @@
       return "🚍";
     }
 
+    function getVehicleTypeKey(departure) {
+      const emoji = getVehicleTypeEmoji(departure);
+
+      if (emoji === "ðŸš‡") {
+        return "metro";
+      }
+
+      if (emoji === "ðŸš‹") {
+        return "tram";
+      }
+
+      if (emoji === "ðŸšŽ") {
+        return "trolleybus";
+      }
+
+      if (emoji === "ðŸšŒ") {
+        return "bus";
+      }
+
+      return "service";
+    }
+
+    function getVehicleTypeLabel(departure) {
+      const type = departure?.mapRouteType || getVehicleTypeKey(departure);
+
+      if (type === "metro") {
+        return "Metro";
+      }
+
+      if (type === "tram") {
+        return "Tramvaj";
+      }
+
+      if (type === "trolleybus") {
+        return "Trolejbus";
+      }
+
+      if (type === "bus") {
+        return "Autobus";
+      }
+
+      return "Spoj";
+    }
+
+    function isDepartureLowFloor(departure) {
+      return getLowFloorCandidates(departure).some(toBooleanFlag);
+    }
+
+    function isDepartureAirConditioned(departure) {
+      return getAirConditionedCandidates(departure).some(toBooleanFlag);
+    }
+
     function getDepartureFeatures(departure, vehicleEmoji) {
       if (vehicleEmoji !== "🚋") {
         return "";
       }
 
-      const lowFloor = [
-        departure.trip?.is_wheelchair_accessible,
-        departure.trip?.wheelchair_accessible,
-        departure.trip?.wheelchair_accessibility,
-        departure.trip?.is_low_floor,
-        departure.trip?.low_floor,
-        departure.trip?.lowFloor,
-        departure.vehicle?.is_wheelchair_accessible,
-        departure.vehicle?.is_low_floor,
-        departure.is_wheelchair_accessible,
-        departure.is_low_floor
-      ].some(toBooleanFlag);
-
-      const airConditioned = [
-        departure.trip?.is_air_conditioned,
-        departure.trip?.air_conditioned,
-        departure.trip?.airConditioned,
-        departure.vehicle?.is_air_conditioned,
-        departure.vehicle?.air_conditioned,
-        departure.vehicle?.airConditioned,
-        departure.is_air_conditioned
-      ].some(toBooleanFlag);
+      const lowFloor = getLowFloorCandidates(departure).some(toBooleanFlag);
+      const airConditioned = getAirConditionedCandidates(departure).some(toBooleanFlag);
 
       return (lowFloor ? " ♿" : "") + (airConditioned ? " ❄️" : "");
     }
@@ -1015,18 +1688,42 @@
           fallbackMessage;
         throw new Error(message);
       }
-
       return payload;
     }
 
+    function enrichDeparturesForMap(departures) {
+      return departures.map((departure) => {
+        const mapRouteType = departure.route?.short_name
+          ? (
+              getVehicleTypeEmoji(departure) === "🚇" ? "metro" :
+              getVehicleTypeEmoji(departure) === "🚋" ? "tram" :
+              getVehicleTypeEmoji(departure) === "🚎" ? "trolleybus" :
+              getVehicleTypeEmoji(departure) === "🚌" ? "bus" :
+              "service"
+            )
+          : "service";
+
+        return {
+          ...departure,
+          mapRouteType
+        };
+      });
+    }
+
     async function load() {
-      const stopId = stopIdInput.value.trim();
+      const stopId = String(currentStop.dataset.stopIds || "").trim();
+      const limit = Math.round(Number(departuresLimit.value || 5));
 
       if (!stopId) {
-        setStatus("Nejdřív vyber zastávku nebo zadej její ID.", true);
+        setStatus("Nejdřív vyber zastávku.", true);
         list.innerHTML = "";
+        clearStopMap();
         return;
       }
+
+      departuresLimit.value = String(
+        Number.isFinite(limit) && limit >= 1 && limit <= 40 ? limit : 5
+      );
 
       clearNearestStops();
       const knownStopIds = currentStop.dataset.stopIds || "";
@@ -1034,19 +1731,21 @@
         knownStopIds === stopId
           ? currentStop.dataset.label || stopId
           : stopId;
-      currentStop.dataset.stopIds = stopId;
-      currentStop.dataset.label = currentLabel;
-      currentStop.textContent = "Vybraná zastávka: " + currentLabel;
-      currentStop.classList.remove("muted");
+      const stopLat = Number(currentStop.dataset.lat);
+      const stopLon = Number(currentStop.dataset.lon);
+      setCurrentStop(stopId, currentLabel, stopLat, stopLon);
       setStatus("Načítám odjezdy...");
-      setLoadingState(loadButton, true);
+      departuresLimit.disabled = true;
 
       try {
         const data = await fetchJsonOrThrow(
-          "/api/departures?stopId=" + encodeURIComponent(stopId),
+          "/api/departures?stopId=" +
+            encodeURIComponent(stopId) +
+            "&limit=" +
+            encodeURIComponent(String(limit)),
           "Nepodařilo se načíst odjezdy."
         );
-        const departures = normalizeDeparturesResponse(data).sort((a, b) => {
+        const departures = enrichDeparturesForMap(normalizeDeparturesResponse(data)).sort((a, b) => {
           const first = getDepartureTimestamp(a);
           const second = getDepartureTimestamp(b);
           const firstTime = first ? new Date(first).getTime() : Number.POSITIVE_INFINITY;
@@ -1055,14 +1754,30 @@
         });
 
         renderDepartures(departures);
+        let vehicles = [];
+        try {
+          vehicles = await loadVehiclePositions(departures);
+        } catch (vehicleError) {
+          console.error("VEHICLE POSITIONS LOAD ERROR:", vehicleError);
+        }
+        currentMapContext = {
+          stop: {
+            lat: stopLat,
+            lon: stopLon,
+            label: currentLabel
+          },
+          departures
+        };
+        renderSelectedStopMap(currentMapContext.stop, vehicles, { preserveView: false });
+        startVehicleRefresh();
         departuresPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-        setStatus("Načteno " + departures.length + " odjezdů.");
+        setStatus("Načteno " + departures.length + " " + pluralize(departures.length, "spoj", "spoje", "spojů") + ".");
       } catch (error) {
         console.error("LOAD ERROR:", error);
         list.innerHTML = "";
         setStatus(error.message || "Načítání odjezdů selhalo.", true);
       } finally {
-        setLoadingState(loadButton, false);
+        departuresLimit.disabled = false;
       }
     }
 
@@ -1073,6 +1788,7 @@
       }
 
       clearNearestStops();
+      setNearestLoading(true);
       setStatus("Zjišťuji nejbližší zastávku...");
       setLoadingState(nearestButton, true);
 
@@ -1081,10 +1797,8 @@
           try {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
-            const accuracy = pos.coords.accuracy;
-            renderLocationDebug(lat, lon, accuracy);
             const stops = await fetchJsonOrThrow(
-              "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon) + "&limit=10",
+              "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon) + "&limit=5",
               "Nepodařilo se načíst okolí zastávky."
             );
 
@@ -1094,17 +1808,18 @@
             }
 
             renderNearestStops(stops);
-            renderNearestMap(lat, lon, stops);
             setStatus("Vyber jednu z nejbližších zastávek.");
           } catch (error) {
             console.error("NEAREST ERROR:", error);
             setStatus(error.message || "Načítání nejbližší zastávky selhalo.", true);
           } finally {
+            setNearestLoading(false);
             setLoadingState(nearestButton, false);
           }
         },
         (error) => {
           console.error("GEOLOCATION ERROR:", error);
+          setNearestLoading(false);
           setLoadingState(nearestButton, false);
           setStatus("Přístup k poloze nebyl povolen nebo se ji nepodařilo získat.", true);
         },
@@ -1227,14 +1942,13 @@
       searchTimeout = setTimeout(searchStop, 250);
     });
 
-    stopIdInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
+    nearestButton.addEventListener("click", loadNearest);
+    departuresLimit.addEventListener("change", () => {
+      if (currentStop.dataset.stopIds) {
         load();
       }
     });
-
-    loadButton.addEventListener("click", load);
-    nearestButton.addEventListener("click", loadNearest);
+    window.addEventListener("beforeunload", stopVehicleRefresh);
   </script>
 </body>
 </html>

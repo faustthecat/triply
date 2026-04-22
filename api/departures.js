@@ -13,8 +13,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing stopId" });
     }
 
+    const limit = Number(req.query.limit || 10);
+
+    if (!Number.isFinite(limit) || limit < 1 || limit > 40) {
+      return res.status(400).json({ error: "Invalid limit" });
+    }
+
     const params = new URLSearchParams({
-      limit: "10"
+      limit: String(Math.round(limit))
     });
 
     for (const stopId of stopIds) {

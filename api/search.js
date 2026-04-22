@@ -17,6 +17,9 @@ function normalizeText(value) {
 
 function parseStop(feature) {
   const properties = feature?.properties || {};
+  const coordinates = feature?.geometry?.coordinates;
+  const lon = Array.isArray(coordinates) ? Number(coordinates[0]) : NaN;
+  const lat = Array.isArray(coordinates) ? Number(coordinates[1]) : NaN;
   const fullName =
     feature?.name ||
     feature?.stop_name ||
@@ -45,6 +48,8 @@ function parseStop(feature) {
     name,
     fullName,
     subtitle,
+    lat,
+    lon,
     isMetro:
       String(zoneId) === "0" ||
       /S\d+$/i.test(String(id)) ||
@@ -87,7 +92,9 @@ function groupStops(stops) {
         name: stop.name,
         fullName: stop.fullName || stop.name || stop.id,
         subtitle: stop.subtitle || "",
-        isMetro
+        isMetro,
+        lat: stop.lat,
+        lon: stop.lon
       });
       continue;
     }
@@ -107,6 +114,14 @@ function groupStops(stops) {
     }
 
     existing.isMetro = existing.isMetro || isMetro;
+
+    if (!Number.isFinite(existing.lat) && Number.isFinite(stop.lat)) {
+      existing.lat = stop.lat;
+    }
+
+    if (!Number.isFinite(existing.lon) && Number.isFinite(stop.lon)) {
+      existing.lon = stop.lon;
+    }
   }
 
   return Array.from(groups.values()).map((group) => ({
@@ -390,6 +405,8 @@ export default async function handler(req, res) {
         fullName: stop.fullName,
         subtitle: stop.subtitle,
         isMetro: stop.isMetro,
+        lat: stop.lat,
+        lon: stop.lon,
         normalizedPrimaryName: normalizeText(stop.name),
         normalizedFullName: normalizeText(stop.fullName),
         normalizedSubtitle: normalizeText(stop.subtitle)
@@ -414,7 +431,9 @@ export default async function handler(req, res) {
         name: stop.name,
         fullName: stop.fullName,
         subtitle: stop.subtitle,
-        isMetro: stop.isMetro
+        isMetro: stop.isMetro,
+        lat: stop.lat,
+        lon: stop.lon
       }));
 
     setCachedQueryResult(normalizedQuery, groupedMatches);
