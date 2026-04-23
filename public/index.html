@@ -736,6 +736,90 @@
       display: none;
     }
 
+    .supplemental-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .supplemental-card {
+      padding: 14px;
+      border: 1px solid rgba(15, 118, 110, 0.18);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .supplemental-card h4 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      color: #0b4a45;
+    }
+
+    .supplemental-status {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .supplemental-list {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .supplemental-item {
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      font-size: 0.9rem;
+    }
+
+    .supplemental-item p {
+      margin-top: 6px;
+      font-size: 0.86rem;
+    }
+
+    .disruption-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .severity-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .severity-badge.severity-high {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .severity-badge.severity-normal {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .severity-badge.severity-low {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .bikes-metrics {
+      margin-top: 6px;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
     .stop-map-title {
       margin: 0 0 6px;
       font-size: 1rem;
@@ -957,6 +1041,10 @@
         max-width: none;
       }
 
+      .supplemental-grid {
+        grid-template-columns: 1fr;
+      }
+
       button {
         width: 100%;
       }
@@ -1059,6 +1147,18 @@
           <div id="nearbyRoutes" class="route-chip-list" aria-label="Spoje zobrazené na mapě"></div>
           <div id="selectedStopMap" class="selected-stop-map" aria-label="Mapa vybrané zastávky a polohy vozidel"></div>
         </div>
+        <div class="supplemental-grid" aria-label="Doplňkové informace o dopravě">
+          <section class="supplemental-card" aria-labelledby="disruptionsHeading">
+            <h4 id="disruptionsHeading">Mimořádnosti v dopravě</h4>
+            <p id="disruptionsStatus" class="supplemental-status">Vyber zastávku pro načtení aktuálních mimořádností.</p>
+            <div id="disruptionsList" class="supplemental-list"></div>
+          </section>
+          <section class="supplemental-card" aria-labelledby="sharedBikesHeading">
+            <h4 id="sharedBikesHeading">Sdílená kola v okolí</h4>
+            <p id="sharedBikesStatus" class="supplemental-status">Vyber zastávku pro načtení nejbližších stanic kol.</p>
+            <div id="sharedBikesList" class="supplemental-list"></div>
+          </section>
+        </div>
       </section>
     </div>
   </main>
@@ -1081,6 +1181,10 @@
     const stopMapSummary = document.getElementById("stopMapSummary");
     const selectedStopMap = document.getElementById("selectedStopMap");
     const nearbyRoutes = document.getElementById("nearbyRoutes");
+    const disruptionsStatus = document.getElementById("disruptionsStatus");
+    const disruptionsList = document.getElementById("disruptionsList");
+    const sharedBikesStatus = document.getElementById("sharedBikesStatus");
+    const sharedBikesList = document.getElementById("sharedBikesList");
     const nearestButton = document.getElementById("nearestButton");
     const nearestLoader = document.getElementById("nearestLoader");
     const nearestList = document.getElementById("nearestList");
@@ -1430,6 +1534,11 @@
       if (selectedMapMarkers) {
         selectedMapMarkers.clearLayers();
       }
+
+      disruptionsStatus.textContent = "Vyber zastávku pro načtení aktuálních mimořádností.";
+      disruptionsList.innerHTML = "";
+      sharedBikesStatus.textContent = "Vyber zastávku pro načtení nejbližších stanic kol.";
+      sharedBikesList.innerHTML = "";
     }
 
     function clearNearestStops() {
@@ -1602,6 +1711,167 @@
         hour: "2-digit",
         minute: "2-digit"
       });
+    }
+
+    function formatDateTime(value) {
+      if (!value) {
+        return "";
+      }
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return "";
+      }
+
+      return date.toLocaleString("cs-CZ", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function getSeverityClass(priority) {
+      if (priority === "high") {
+        return "severity-high";
+      }
+
+      if (priority === "low") {
+        return "severity-low";
+      }
+
+      return "severity-normal";
+    }
+
+    function getSeverityLabel(priority) {
+      if (priority === "high") {
+        return "vysoká";
+      }
+
+      if (priority === "low") {
+        return "nízká";
+      }
+
+      return "střední";
+    }
+
+    function renderDisruptions(items) {
+      disruptionsList.innerHTML = "";
+
+      if (!items.length) {
+        disruptionsStatus.textContent = "Pro tuto zastávku aktuálně nejsou hlášené mimořádnosti.";
+        return;
+      }
+
+      disruptionsStatus.textContent =
+        "Nalezeno " + items.length + " " + pluralize(items.length, "mimořádnost", "mimořádnosti", "mimořádností") + ".";
+
+      items.forEach((item) => {
+        const container = document.createElement("article");
+        container.className = "supplemental-item";
+
+        const header = document.createElement("div");
+        header.className = "disruption-header";
+
+        const badge = document.createElement("span");
+        const severityClass = getSeverityClass(item.priority);
+        badge.className = "severity-badge " + severityClass;
+        badge.textContent = getSeverityLabel(item.priority);
+
+        const validity = document.createElement("span");
+        const from = formatDateTime(item.validFrom);
+        const to = formatDateTime(item.validTo);
+        validity.className = "muted";
+        validity.textContent = from && to ? from + " - " + to : from ? "od " + from : "";
+
+        header.appendChild(badge);
+        if (validity.textContent) {
+          header.appendChild(validity);
+        }
+
+        const text = document.createElement("p");
+        text.textContent = item.text || "Mimořádnost bez popisu";
+
+        container.appendChild(header);
+        container.appendChild(text);
+        disruptionsList.appendChild(container);
+      });
+    }
+
+    function renderSharedBikes(items) {
+      sharedBikesList.innerHTML = "";
+
+      if (!items.length) {
+        sharedBikesStatus.textContent = "V okolí zastávky nejsou dostupné stanice sdílených kol.";
+        return;
+      }
+
+      sharedBikesStatus.textContent =
+        "Nalezeno " + items.length + " " + pluralize(items.length, "stanice", "stanice", "stanic") + " v okolí.";
+
+      items.forEach((item) => {
+        const container = document.createElement("article");
+        container.className = "supplemental-item";
+
+        const title = document.createElement("strong");
+        title.textContent = item.name || "Stanice sdílených kol";
+
+        const info = document.createElement("p");
+        const provider = item.provider ? item.provider + " · " : "";
+        const distance = Number.isFinite(item.distance) ? formatDistance(item.distance) : "";
+        info.textContent = provider + distance;
+
+        const metrics = document.createElement("p");
+        metrics.className = "bikes-metrics";
+        const bikes = Number.isFinite(item.freeBikes) ? item.freeBikes : "?";
+        const docks = Number.isFinite(item.emptySlots) ? item.emptySlots : "?";
+        metrics.textContent = "Kola: " + bikes + " · Volná místa: " + docks;
+
+        container.appendChild(title);
+        if (info.textContent) {
+          container.appendChild(info);
+        }
+        container.appendChild(metrics);
+        sharedBikesList.appendChild(container);
+      });
+    }
+
+    async function loadSupplementalInfo(stopIds, lat, lon) {
+      disruptionsStatus.textContent = "Načítám mimořádnosti...";
+      sharedBikesStatus.textContent = "Načítám sdílená kola...";
+      disruptionsList.innerHTML = "";
+      sharedBikesList.innerHTML = "";
+
+      try {
+        const payload = await fetchJsonOrThrow(
+          "/api/disruptions?stopIds=" + encodeURIComponent(stopIds) + "&limit=6",
+          "Nepodařilo se načíst mimořádnosti."
+        );
+        renderDisruptions(Array.isArray(payload?.items) ? payload.items : []);
+      } catch (error) {
+        console.error("DISRUPTIONS LOAD ERROR:", error);
+        disruptionsStatus.textContent = "Mimořádnosti se nepodařilo načíst.";
+      }
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+        sharedBikesStatus.textContent = "Sdílená kola nelze načíst bez polohy zastávky.";
+        return;
+      }
+
+      try {
+        const payload = await fetchJsonOrThrow(
+          "/api/shared-bikes?lat=" +
+            encodeURIComponent(String(lat)) +
+            "&lon=" +
+            encodeURIComponent(String(lon)) +
+            "&limit=6&range=1200",
+          "Nepodařilo se načíst sdílená kola."
+        );
+        renderSharedBikes(Array.isArray(payload?.items) ? payload.items : []);
+      } catch (error) {
+        console.error("SHARED BIKES LOAD ERROR:", error);
+        sharedBikesStatus.textContent = "Sdílená kola se nepodařilo načíst.";
+      }
     }
 
     function getVehicleAmenityEmoji(vehicle) {
@@ -2427,6 +2697,7 @@
           departures
         };
         renderSelectedStopMap(currentMapContext.stop, vehicles, { preserveView: false });
+        loadSupplementalInfo(stopId, stopLat, stopLon);
         startVehicleRefresh();
         departuresPanel.scrollIntoView({ behavior: "smooth", block: "start" });
         setStatus(
