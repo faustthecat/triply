@@ -165,9 +165,55 @@
     }
 
     .mode-card.primary {
+      grid-column: 1 / -1;
       border-color: rgba(15, 118, 110, 0.45);
       background: linear-gradient(180deg, #f3fbf8 0%, #edf7f4 100%);
       box-shadow: 0 10px 24px rgba(15, 118, 110, 0.12);
+    }
+
+    .mode-card.secondary {
+      max-width: 420px;
+    }
+
+    .text-search-disclosure {
+      margin-top: 16px;
+    }
+
+    .text-search-disclosure summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      list-style: none;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .text-search-disclosure summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .text-search-disclosure summary::after {
+      content: "+";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.12);
+      color: var(--accent-strong);
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .text-search-disclosure[open] summary::after {
+      content: "-";
+    }
+
+    .text-search-content {
+      margin-top: 12px;
     }
 
     .mode-card h3 {
@@ -228,6 +274,18 @@
       gap: 10px;
     }
 
+    .location-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(140px, 1fr));
+      gap: 12px;
+      align-items: end;
+      margin-top: 16px;
+    }
+
+    .location-controls .field {
+      margin-bottom: 0;
+    }
+
     button {
       padding: 11px 16px;
       border: 0;
@@ -254,6 +312,7 @@
 
     .cta-location {
       width: 100%;
+      align-self: stretch;
       justify-content: center;
       background: linear-gradient(135deg, #0f766e, #0d8f85);
       font-weight: 700;
@@ -636,6 +695,14 @@
         grid-template-columns: 1fr;
       }
 
+      .location-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-card.secondary {
+        max-width: none;
+      }
+
       button {
         width: 100%;
       }
@@ -657,11 +724,20 @@
 
         <div class="search-modes">
           <article class="mode-card primary" aria-labelledby="mode-location-heading">
-            <span class="mode-badge">Doporučeno</span>
             <h3 id="mode-location-heading">Hledat podle lokality</h3>
-            <p class="mode-hint">Najdeme zastávky v tvém okolí a nabídneme tu nejbližší.</p>
-            <div class="actions">
-              <button id="nearestButton" type="button" class="cta-location">Použít moji aktuální polohu</button>
+            <p class="mode-hint">Najdeme zastávky v tvém okolí a rovnou si nastavíš, kolik zastávek a spojů chceš zobrazit.</p>
+            <div class="location-controls">
+              <div class="actions">
+                <button id="nearestButton" type="button" class="cta-location">Použít moji aktuální polohu</button>
+              </div>
+              <div class="field">
+                <label for="nearestStopsLimit">Kolik nejbližších zastávek hledat</label>
+                <input id="nearestStopsLimit" type="number" min="1" max="20" step="1" value="5" inputmode="numeric" />
+              </div>
+              <div class="field">
+                <label for="departuresLimit">Kolik nejbližších spojů zobrazit</label>
+                <input id="departuresLimit" type="number" min="1" max="40" step="1" value="5" inputmode="numeric" />
+              </div>
             </div>
             <div id="nearestLoader" class="nearest-loader" role="status" aria-live="polite" aria-hidden="true">
               <span class="nearest-loader-bus" aria-hidden="true">
@@ -674,24 +750,20 @@
             <ul id="nearestList" class="nearest-list" aria-label="Nejbližší zastávky"></ul>
           </article>
 
-          <article class="mode-card" aria-labelledby="mode-text-heading">
-            <h3 id="mode-text-heading">Hledat podle názvu</h3>
-            <p class="mode-hint">Začni psát a vyber zastávku z nabídky.</p>
-            <div class="field">
-              <label for="search">Název zastávky</label>
-              <input id="search" placeholder="Např. Anděl, Muzeum, Dejvická" autocomplete="on" />
+          <details class="mode-card secondary text-search-disclosure">
+            <summary id="mode-text-heading">Hledat podle názvu</summary>
+            <div class="text-search-content">
+              <p class="mode-hint">Začni psát a vyber zastávku z nabídky.</p>
+              <div class="field">
+                <label for="search">Název zastávky</label>
+                <input id="search" placeholder="Např. Anděl, Muzeum, Dejvická" autocomplete="on" />
+              </div>
+              <div id="searchStatus" class="status" aria-live="polite"></div>
+              <ul id="results" aria-label="Výsledky hledání"></ul>
             </div>
-            <div id="searchStatus" class="status" aria-live="polite"></div>
-            <ul id="results" aria-label="Výsledky hledání"></ul>
-          </article>
+          </details>
         </div>
 
-        <div class="departures-toolbar">
-          <div class="field">
-            <label for="departuresLimit">Kolik nejbližších spojů zobrazit</label>
-            <input id="departuresLimit" type="number" min="1" max="40" step="1" value="5" inputmode="numeric" />
-          </div>
-        </div>
       </section>
 
       <section id="departuresPanel" class="panel" aria-labelledby="departures-heading">
@@ -712,6 +784,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const searchInput = document.getElementById("search");
+    const nearestStopsLimit = document.getElementById("nearestStopsLimit");
     const departuresLimit = document.getElementById("departuresLimit");
     const results = document.getElementById("results");
     const list = document.getElementById("list");
@@ -738,6 +811,7 @@
     let currentMapContext = null;
     let isRefreshingVehicles = false;
     let openPopupTripId = null;
+    let isReplacingMapMarkers = false;
 
     function toStopIds(stop) {
       if (Array.isArray(stop?.ids) && stop.ids.length) {
@@ -792,6 +866,17 @@
       }
 
       return value.toFixed(6);
+    }
+
+    function clampNumericInput(input, fallback, min, max) {
+      const value = Math.round(Number(input?.value || fallback));
+      const normalized = Number.isFinite(value) && value >= min && value <= max ? value : fallback;
+
+      if (input) {
+        input.value = String(normalized);
+      }
+
+      return normalized;
     }
 
     function pluralize(count, one, few, many) {
@@ -1039,6 +1124,7 @@
 
     function renderSelectedStopMap(stop, vehicles, options = {}) {
       const preserveView = Boolean(options.preserveView);
+      const popupTripIdToRestore = openPopupTripId;
 
       if (!Number.isFinite(stop?.lat) || !Number.isFinite(stop?.lon)) {
         clearStopMap();
@@ -1053,7 +1139,9 @@
 
       // Before clearing, remember which popup was open
       if (selectedMapMarkers) {
+        isReplacingMapMarkers = true;
         selectedMapMarkers.clearLayers();
+        isReplacingMapMarkers = false;
       }
 
       stopMapPanel.hidden = false;
@@ -1108,7 +1196,6 @@
             (Number.isFinite(vehicle.delayMinutes)
               ? "<br>Zpoždění: " + escapeHtml(formatDelayMinutes(vehicle.delayMinutes))
               : "") +
-            "<br>Aktuální poloha vozidla" +
             (vehicle.lastUpdated ? "<br>Aktualizace: " + escapeHtml(vehicle.lastUpdated) : ""),
           { autoClose: false, closeOnClick: false }
         );
@@ -1118,12 +1205,16 @@
         });
 
         marker.on("popupclose", () => {
+          if (isReplacingMapMarkers) {
+            return;
+          }
+
           if (openPopupTripId === vehicle.tripId) {
             openPopupTripId = null;
           }
         });
 
-        if (openPopupTripId && openPopupTripId === vehicle.tripId) {
+        if (popupTripIdToRestore && popupTripIdToRestore === vehicle.tripId) {
           marker.openPopup();
         }
 
@@ -1256,7 +1347,7 @@
 
     function startVehicleRefresh() {
       stopVehicleRefresh();
-      vehicleRefreshTimer = setInterval(refreshVehicleMapPositions, 5000);
+      vehicleRefreshTimer = setInterval(refreshVehicleMapPositions, 10000);
     }
 
     function applySelectedStop(stop, shouldLoad = true) {
@@ -1288,9 +1379,7 @@
 
         const distance = document.createElement("span");
         distance.className = "nearest-distance";
-        distance.textContent =
-          (index === 0 ? "Doporučená nejbližší zastávka · " : "") +
-          formatDistance(stop.distance);
+        distance.textContent = formatDistance(stop.distance);
 
         li.appendChild(title);
         if (subtitle.textContent) {
@@ -1712,7 +1801,7 @@
 
     async function load() {
       const stopId = String(currentStop.dataset.stopIds || "").trim();
-      const limit = Math.round(Number(departuresLimit.value || 5));
+      const limit = clampNumericInput(departuresLimit, 5, 1, 40);
 
       if (!stopId) {
         setStatus("Nejdřív vyber zastávku.", true);
@@ -1720,11 +1809,6 @@
         clearStopMap();
         return;
       }
-
-      departuresLimit.value = String(
-        Number.isFinite(limit) && limit >= 1 && limit <= 40 ? limit : 5
-      );
-
       clearNearestStops();
       const knownStopIds = currentStop.dataset.stopIds || "";
       const currentLabel =
@@ -1787,6 +1871,8 @@
         return;
       }
 
+      const stopLimit = clampNumericInput(nearestStopsLimit, 5, 1, 20);
+
       clearNearestStops();
       setNearestLoading(true);
       setStatus("Zjišťuji nejbližší zastávku...");
@@ -1798,7 +1884,7 @@
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
             const stops = await fetchJsonOrThrow(
-              "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon) + "&limit=5",
+              "/api/stops?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon) + "&limit=" + encodeURIComponent(String(stopLimit)),
               "Nepodařilo se načíst okolí zastávky."
             );
 
@@ -1943,7 +2029,11 @@
     });
 
     nearestButton.addEventListener("click", loadNearest);
+    nearestStopsLimit.addEventListener("change", () => {
+      clampNumericInput(nearestStopsLimit, 5, 1, 20);
+    });
     departuresLimit.addEventListener("change", () => {
+      clampNumericInput(departuresLimit, 5, 1, 40);
       if (currentStop.dataset.stopIds) {
         load();
       }
