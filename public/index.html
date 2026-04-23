@@ -276,10 +276,30 @@
 
     .location-controls {
       display: grid;
-      grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(140px, 1fr));
-      gap: 12px;
-      align-items: end;
+      gap: 10px;
       margin-top: 16px;
+    }
+
+    .location-settings-disclosure {
+      border: 1px solid rgba(15, 118, 110, 0.18);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 10px 12px;
+    }
+
+    .location-settings-disclosure summary {
+      cursor: pointer;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #0b4a45;
+    }
+
+    .location-settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+      align-items: end;
     }
 
     .transport-filter {
@@ -814,6 +834,107 @@
       color: #166534;
     }
 
+    .air-quality-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .air-quality-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .air-quality-badge.aq-very-good {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .air-quality-badge.aq-good {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .air-quality-badge.aq-fair {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+
+    .air-quality-badge.aq-poor {
+      background: #ffedd5;
+      color: #9a3412;
+    }
+
+    .air-quality-badge.aq-bad {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .air-quality-badge.aq-very-bad {
+      background: #ede9fe;
+      color: #5b21b6;
+    }
+
+    .air-quality-badge.aq-unknown {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .air-quality-help {
+      margin-top: 8px;
+      border: 1px dashed rgba(82, 96, 109, 0.35);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .air-quality-help summary {
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #0b4a45;
+    }
+
+    .air-quality-help ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .air-quality-values {
+      margin-top: 8px;
+      border: 1px dashed rgba(82, 96, 109, 0.35);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .air-quality-values summary {
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #0b4a45;
+    }
+
+    .air-quality-values-list {
+      margin-top: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .air-quality-values-list p {
+      margin: 0;
+      font-size: 0.84rem;
+    }
+
     .bikes-metrics {
       margin-top: 6px;
       font-size: 0.86rem;
@@ -1037,6 +1158,10 @@
         grid-template-columns: 1fr;
       }
 
+      .location-settings-grid {
+        grid-template-columns: 1fr;
+      }
+
       .mode-card.secondary {
         max-width: none;
       }
@@ -1060,6 +1185,11 @@
     </header>
 
     <div class="stack">
+      <section id="favoritesPanel" class="panel favorites-panel" hidden>
+        <h3 class="favorites-title">Oblíbené zastávky</h3>
+        <div id="favoriteStops" class="favorite-chip-list" aria-label="Oblíbené zastávky"></div>
+      </section>
+
       <section class="panel" aria-labelledby="search-heading">
         <h2 id="search-heading">Vyber zastávku</h2>
         <p class="lead">Vyber si způsob hledání: buď napiš název zastávky, nebo použij svou polohu.</p>
@@ -1072,35 +1202,40 @@
               <div class="actions">
                 <button id="nearestButton" type="button" class="cta-location">Použít moji aktuální polohu</button>
               </div>
-              <div class="field">
-                <label for="nearestStopsLimit">Kolik nejbližších zastávek hledat</label>
-                <input id="nearestStopsLimit" type="number" min="1" max="20" step="1" value="5" inputmode="numeric" />
-              </div>
-              <div class="field">
-                <label for="departuresLimit">Kolik nejbližších spojů zobrazit</label>
-                <input id="departuresLimit" type="number" min="1" max="40" step="1" value="5" inputmode="numeric" />
-              </div>
-            </div>
-            <div class="transport-filter" aria-labelledby="transportFilterLabel">
-              <span id="transportFilterLabel" class="transport-filter-label">Zobrazit typy dopravy</span>
-              <div class="transport-filter-options">
-                <label class="transport-filter-option">
-                  <input type="checkbox" name="transportType" value="tram" checked />
-                  <span>🚋 Tramvaj</span>
-                </label>
-                <label class="transport-filter-option">
-                  <input type="checkbox" name="transportType" value="metro" checked />
-                  <span>🚇 Metro</span>
-                </label>
-                <label class="transport-filter-option">
-                  <input type="checkbox" name="transportType" value="bus" checked />
-                  <span>🚌 Autobus</span>
-                </label>
-                <label class="transport-filter-option">
-                  <input type="checkbox" name="transportType" value="trolleybus" checked />
-                  <span>🚎 Trolejbus</span>
-                </label>
-              </div>
+              <details class="location-settings-disclosure">
+                <summary>Nastavení hledání</summary>
+                <div class="location-settings-grid">
+                  <div class="field">
+                    <label for="nearestStopsLimit">Kolik nejbližších zastávek hledat</label>
+                    <input id="nearestStopsLimit" type="number" min="1" max="20" step="1" value="5" inputmode="numeric" />
+                  </div>
+                  <div class="field">
+                    <label for="departuresLimit">Kolik nejbližších spojů zobrazit</label>
+                    <input id="departuresLimit" type="number" min="1" max="40" step="1" value="5" inputmode="numeric" />
+                  </div>
+                </div>
+                <div class="transport-filter" aria-labelledby="transportFilterLabel">
+                  <span id="transportFilterLabel" class="transport-filter-label">Zobrazit typy dopravy</span>
+                  <div class="transport-filter-options">
+                    <label class="transport-filter-option">
+                      <input type="checkbox" name="transportType" value="tram" checked />
+                      <span>🚋 Tramvaj</span>
+                    </label>
+                    <label class="transport-filter-option">
+                      <input type="checkbox" name="transportType" value="metro" checked />
+                      <span>🚇 Metro</span>
+                    </label>
+                    <label class="transport-filter-option">
+                      <input type="checkbox" name="transportType" value="bus" checked />
+                      <span>🚌 Autobus</span>
+                    </label>
+                    <label class="transport-filter-option">
+                      <input type="checkbox" name="transportType" value="trolleybus" checked />
+                      <span>🚎 Trolejbus</span>
+                    </label>
+                  </div>
+                </div>
+              </details>
             </div>
             <div id="nearestLoader" class="nearest-loader" role="status" aria-live="polite" aria-hidden="true">
               <span class="nearest-loader-bus" aria-hidden="true">
@@ -1135,10 +1270,6 @@
           <p id="currentStop" class="current-stop selected-stop muted">Zatím není vybraná žádná zastávka.</p>
           <button id="favoriteStopButton" type="button" class="favorite-stop-button" hidden>☆ Přidat do oblíbených</button>
         </div>
-        <div id="favoritesPanel" class="favorites-panel" hidden>
-          <h3 class="favorites-title">Oblíbené zastávky</h3>
-          <div id="favoriteStops" class="favorite-chip-list" aria-label="Oblíbené zastávky"></div>
-        </div>
         <div id="status" class="status" aria-live="polite"></div>
         <ul id="list" aria-label="Seznam odjezdů"></ul>
         <div id="stopMapPanel" class="stop-map-panel" hidden>
@@ -1153,10 +1284,20 @@
             <p id="disruptionsStatus" class="supplemental-status">Vyber zastávku pro načtení aktuálních mimořádností.</p>
             <div id="disruptionsList" class="supplemental-list"></div>
           </section>
-          <section class="supplemental-card" aria-labelledby="sharedBikesHeading">
-            <h4 id="sharedBikesHeading">Sdílená kola v okolí</h4>
-            <p id="sharedBikesStatus" class="supplemental-status">Vyber zastávku pro načtení nejbližších stanic kol.</p>
-            <div id="sharedBikesList" class="supplemental-list"></div>
+          <section class="supplemental-card" aria-labelledby="airQualityHeading">
+            <h4 id="airQualityHeading">Kvalita ovzduší</h4>
+            <p id="airQualityStatus" class="supplemental-status">Vyber zastávku pro načtení nejbližší měřící stanice.</p>
+            <div id="airQualityList" class="supplemental-list"></div>
+            <details class="air-quality-help">
+              <summary>Jak číst index kvality ovzduší?</summary>
+              <ul>
+                <li>1-2: velmi dobrá až dobrá kvalita ovzduší</li>
+                <li>3: přijatelná kvalita</li>
+                <li>4: zhoršená kvalita</li>
+                <li>5: špatná kvalita</li>
+                <li>6 a více: velmi špatná kvalita</li>
+              </ul>
+            </details>
           </section>
         </div>
       </section>
@@ -1183,8 +1324,8 @@
     const nearbyRoutes = document.getElementById("nearbyRoutes");
     const disruptionsStatus = document.getElementById("disruptionsStatus");
     const disruptionsList = document.getElementById("disruptionsList");
-    const sharedBikesStatus = document.getElementById("sharedBikesStatus");
-    const sharedBikesList = document.getElementById("sharedBikesList");
+    const airQualityStatus = document.getElementById("airQualityStatus");
+    const airQualityList = document.getElementById("airQualityList");
     const nearestButton = document.getElementById("nearestButton");
     const nearestLoader = document.getElementById("nearestLoader");
     const nearestList = document.getElementById("nearestList");
@@ -1537,8 +1678,8 @@
 
       disruptionsStatus.textContent = "Vyber zastávku pro načtení aktuálních mimořádností.";
       disruptionsList.innerHTML = "";
-      sharedBikesStatus.textContent = "Vyber zastávku pro načtení nejbližších stanic kol.";
-      sharedBikesList.innerHTML = "";
+      airQualityStatus.textContent = "Vyber zastávku pro načtení nejbližší měřící stanice.";
+      airQualityList.innerHTML = "";
     }
 
     function clearNearestStops() {
@@ -1798,49 +1939,335 @@
       });
     }
 
-    function renderSharedBikes(items) {
-      sharedBikesList.innerHTML = "";
+    function getAirQualityLabel(index) {
+      if (!Number.isFinite(index)) {
+        return "bez indexu";
+      }
+
+      if (index <= 1) {
+        return "velmi dobrá";
+      }
+
+      if (index <= 2) {
+        return "dobrá";
+      }
+
+      if (index <= 3) {
+        return "přijatelná";
+      }
+
+      if (index <= 4) {
+        return "zhoršená";
+      }
+
+      if (index <= 5) {
+        return "špatná";
+      }
+
+      return "velmi špatná";
+    }
+
+    function getAirQualityBadgeClass(index) {
+      if (!Number.isFinite(index)) {
+        return "aq-unknown";
+      }
+
+      if (index <= 1) {
+        return "aq-very-good";
+      }
+
+      if (index <= 2) {
+        return "aq-good";
+      }
+
+      if (index <= 3) {
+        return "aq-fair";
+      }
+
+      if (index <= 4) {
+        return "aq-poor";
+      }
+
+      if (index <= 5) {
+        return "aq-bad";
+      }
+
+      return "aq-very-bad";
+    }
+
+    function getAirComponentSeverity(type, value) {
+      const key = String(type || "").toUpperCase();
+      if (!Number.isFinite(value)) {
+        return 0;
+      }
+
+      if (key === "NO2") {
+        return value <= 50 ? 1 : value <= 100 ? 2 : 3;
+      }
+
+      if (key === "O3") {
+        return value <= 100 ? 1 : value <= 140 ? 2 : 3;
+      }
+
+      if (key === "PM10") {
+        return value <= 20 ? 1 : value <= 40 ? 2 : 3;
+      }
+
+      if (key === "PM2.5" || key === "PM25") {
+        return value <= 10 ? 1 : value <= 20 ? 2 : 3;
+      }
+
+      if (key === "SO2") {
+        return value <= 50 ? 1 : value <= 125 ? 2 : 3;
+      }
+
+      return 0;
+    }
+
+    function getAirQualityTrafficLight(index, components = []) {
+      if (!Number.isFinite(index)) {
+        const maxSeverity = (Array.isArray(components) ? components : []).reduce((max, component) => {
+          const severity = getAirComponentSeverity(component?.type, component?.value);
+          return Math.max(max, severity);
+        }, 0);
+
+        if (maxSeverity === 1) {
+          return {
+            label: "zelená",
+            description: "odhad podle složek: vzduch je většinou v pořádku"
+          };
+        }
+
+        if (maxSeverity === 2) {
+          return {
+            label: "žlutá",
+            description: "odhad podle složek: citlivější lidé mohou vnímat zhoršení"
+          };
+        }
+
+        if (maxSeverity === 3) {
+          return {
+            label: "oranžová",
+            description: "odhad podle složek: zvaž omezení delší zátěže venku"
+          };
+        }
+
+        return {
+          label: "neznámý",
+          description: "bez dostupného indexu"
+        };
+      }
+
+      if (index <= 2) {
+        return {
+          label: "zelená",
+          description: "vzduch je většinou v pořádku"
+        };
+      }
+
+      if (index <= 3) {
+        return {
+          label: "žlutá",
+          description: "citlivější lidé mohou vnímat zhoršení"
+        };
+      }
+
+      if (index <= 4) {
+        return {
+          label: "oranžová",
+          description: "zvaž omezení delší zátěže venku"
+        };
+      }
+
+      return {
+        label: "červená",
+        description: "vzduch je zhoršený, omez pobyt venku"
+      };
+    }
+
+    function getAirQualityBadgeClassForTrafficLight(label, fallbackIndex) {
+      if (Number.isFinite(fallbackIndex)) {
+        return getAirQualityBadgeClass(fallbackIndex);
+      }
+
+      if (label === "zelená") {
+        return "aq-good";
+      }
+
+      if (label === "žlutá") {
+        return "aq-fair";
+      }
+
+      if (label === "oranžová") {
+        return "aq-poor";
+      }
+
+      if (label === "červená") {
+        return "aq-bad";
+      }
+
+      return "aq-unknown";
+    }
+
+    function getAirComponentMeta(type) {
+      const key = String(type || "").toUpperCase();
+
+      if (key === "NO2") {
+        return { label: "Oxid dusičity", unit: "ug/m3" };
+      }
+
+      if (key === "O3") {
+        return { label: "Ozon", unit: "ug/m3" };
+      }
+
+      if (key === "PM10") {
+        return { label: "Prach PM10", unit: "ug/m3" };
+      }
+
+      if (key === "PM2.5" || key === "PM25") {
+        return { label: "Prach PM2.5", unit: "ug/m3" };
+      }
+
+      if (key === "SO2") {
+        return { label: "Oxid siřičity", unit: "ug/m3" };
+      }
+
+      if (key === "CO") {
+        return { label: "Oxid uhelnaty", unit: "ug/m3" };
+      }
+
+      return {
+        label: key || "Měřena složka",
+        unit: ""
+      };
+    }
+
+    function getAirComponentLevel(type, value) {
+      const key = String(type || "").toUpperCase();
+      if (!Number.isFinite(value)) {
+        return "";
+      }
+
+      if (key === "NO2") {
+        return value <= 50 ? "nizka zatez" : value <= 100 ? "středni zatez" : "vyšši zatez";
+      }
+
+      if (key === "O3") {
+        return value <= 100 ? "nizka zatez" : value <= 140 ? "středni zatez" : "vyšši zatez";
+      }
+
+      if (key === "PM10") {
+        return value <= 20 ? "nizka zatez" : value <= 40 ? "středni zatez" : "vyšši zatez";
+      }
+
+      if (key === "PM2.5" || key === "PM25") {
+        return value <= 10 ? "nizka zatez" : value <= 20 ? "středni zatez" : "vyšši zatez";
+      }
+
+      if (key === "SO2") {
+        return value <= 50 ? "nizka zatez" : value <= 125 ? "středni zatez" : "vyšši zatez";
+      }
+
+      return "";
+    }
+
+    function renderAirQuality(items) {
+      airQualityList.innerHTML = "";
 
       if (!items.length) {
-        sharedBikesStatus.textContent = "V okolí zastávky nejsou dostupné stanice sdílených kol.";
+        airQualityStatus.textContent = "V okolí zastávky nejsou dostupná data o kvalitě ovzduší.";
         return;
       }
 
-      sharedBikesStatus.textContent =
-        "Nalezeno " + items.length + " " + pluralize(items.length, "stanice", "stanice", "stanic") + " v okolí.";
+      const station = items[0];
+      const stationName = station.name || "Neznámá stanice";
+      const district = station.district ? " (" + station.district + ")" : "";
+      const distance = Number.isFinite(station.distance) ? " · " + formatDistance(station.distance) : "";
+      const indexText = Number.isFinite(station.index)
+        ? "Index " + station.index + " (" + getAirQualityLabel(station.index) + ")"
+        : "Index není dostupný";
+      const trafficLight = getAirQualityTrafficLight(station.index, station.components);
 
-      items.forEach((item) => {
-        const container = document.createElement("article");
-        container.className = "supplemental-item";
+      airQualityStatus.textContent =
+        "Nejbližší stanice: " +
+        stationName +
+        district +
+        distance +
+        ". Semafor: " +
+        trafficLight.label +
+        " (" +
+        trafficLight.description +
+        "). " +
+        indexText +
+        ".";
 
-        const title = document.createElement("strong");
-        title.textContent = item.name || "Stanice sdílených kol";
+      const stationCard = document.createElement("article");
+      stationCard.className = "supplemental-item";
 
-        const info = document.createElement("p");
-        const provider = item.provider ? item.provider + " · " : "";
-        const distance = Number.isFinite(item.distance) ? formatDistance(item.distance) : "";
-        info.textContent = provider + distance;
+      const header = document.createElement("div");
+      header.className = "air-quality-header";
 
-        const metrics = document.createElement("p");
-        metrics.className = "bikes-metrics";
-        const bikes = Number.isFinite(item.freeBikes) ? item.freeBikes : "?";
-        const docks = Number.isFinite(item.emptySlots) ? item.emptySlots : "?";
-        metrics.textContent = "Kola: " + bikes + " · Volná místa: " + docks;
+      const title = document.createElement("strong");
+      title.textContent = stationName + district;
+      header.appendChild(title);
 
-        container.appendChild(title);
-        if (info.textContent) {
-          container.appendChild(info);
-        }
-        container.appendChild(metrics);
-        sharedBikesList.appendChild(container);
-      });
+      const badge = document.createElement("span");
+      badge.className = "air-quality-badge " + getAirQualityBadgeClassForTrafficLight(trafficLight.label, station.index);
+      badge.textContent = "Semafor: " + trafficLight.label;
+      header.appendChild(badge);
+
+      stationCard.appendChild(header);
+
+      if (station.updatedAt) {
+        const updated = document.createElement("p");
+        updated.className = "muted";
+        updated.textContent = "Aktualizace: " + formatDateTime(station.updatedAt);
+        stationCard.appendChild(updated);
+      }
+
+      if (Array.isArray(station.components) && station.components.length) {
+        const valuesDetails = document.createElement("details");
+        valuesDetails.className = "air-quality-values";
+
+        const valuesSummary = document.createElement("summary");
+        valuesSummary.textContent = "Ukázat konkrétní naměřené hodnoty";
+        valuesDetails.appendChild(valuesSummary);
+
+        const valuesList = document.createElement("div");
+        valuesList.className = "air-quality-values-list";
+
+        station.components.slice(0, 4).forEach((component) => {
+          const itemLine = document.createElement("p");
+          const meta = getAirComponentMeta(component.type);
+          const amount = Number.isFinite(component.value) ? component.value.toFixed(1) : "?";
+          const unitSuffix = meta.unit ? " " + meta.unit : "";
+          const hoursSuffix = Number.isFinite(component.averagedHours)
+            ? " (" + component.averagedHours + "h průměr)"
+            : "";
+          const level = getAirComponentLevel(component.type, component.value);
+          const levelSuffix = level ? " - " + level : "";
+          itemLine.textContent =
+            meta.label +
+            " (" + (String(component.type || "").toUpperCase() || "?") + "): " +
+            amount +
+            unitSuffix +
+            levelSuffix +
+            hoursSuffix;
+          valuesList.appendChild(itemLine);
+        });
+
+        valuesDetails.appendChild(valuesList);
+        stationCard.appendChild(valuesDetails);
+      }
+
+      airQualityList.appendChild(stationCard);
     }
 
     async function loadSupplementalInfo(stopIds, lat, lon) {
       disruptionsStatus.textContent = "Načítám mimořádnosti...";
-      sharedBikesStatus.textContent = "Načítám sdílená kola...";
       disruptionsList.innerHTML = "";
-      sharedBikesList.innerHTML = "";
+      airQualityStatus.textContent = "Načítám kvalitu ovzduší...";
+      airQualityList.innerHTML = "";
 
       try {
         const payload = await fetchJsonOrThrow(
@@ -1854,23 +2281,23 @@
       }
 
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-        sharedBikesStatus.textContent = "Sdílená kola nelze načíst bez polohy zastávky.";
+        airQualityStatus.textContent = "Kvalitu ovzduší nelze načíst bez polohy zastávky.";
         return;
       }
 
       try {
         const payload = await fetchJsonOrThrow(
-          "/api/shared-bikes?lat=" +
+          "/api/air-quality?lat=" +
             encodeURIComponent(String(lat)) +
             "&lon=" +
             encodeURIComponent(String(lon)) +
-            "&limit=6&range=1200",
-          "Nepodařilo se načíst sdílená kola."
+            "&limit=1&range=4000",
+          "Nepodařilo se načíst kvalitu ovzduší."
         );
-        renderSharedBikes(Array.isArray(payload?.items) ? payload.items : []);
+        renderAirQuality(Array.isArray(payload?.items) ? payload.items : []);
       } catch (error) {
-        console.error("SHARED BIKES LOAD ERROR:", error);
-        sharedBikesStatus.textContent = "Sdílená kola se nepodařilo načíst.";
+        console.error("AIR QUALITY LOAD ERROR:", error);
+        airQualityStatus.textContent = "Kvalitu ovzduší se nepodařilo načíst.";
       }
     }
 

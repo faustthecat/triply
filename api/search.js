@@ -174,6 +174,15 @@ function getFeatureStopId(feature) {
   );
 }
 
+function collectLocalMatches(stops, normalizedQuery) {
+  return stops.filter(
+    (stop) =>
+      stop.normalizedPrimaryName.includes(normalizedQuery) ||
+      stop.normalizedFullName.includes(normalizedQuery) ||
+      stop.normalizedSubtitle.includes(normalizedQuery)
+  );
+}
+
 function isCatalogWarm() {
   return Boolean(cachedStops) && Date.now() - cachedAt < CACHE_TTL_MS;
 }
@@ -375,13 +384,21 @@ export default async function handler(req, res) {
     let matches = sortMatchedStops(Array.from(combinedStops.values()), normalizedQuery);
 
     if (matches.length < MAX_RESULTS) {
+      let localCatalog = null;
+
       if (isCatalogWarm()) {
-        const localMatches = cachedStops.filter(
-          (stop) =>
-            stop.normalizedPrimaryName.includes(normalizedQuery) ||
-            stop.normalizedFullName.includes(normalizedQuery) ||
-            stop.normalizedSubtitle.includes(normalizedQuery)
-        );
+        localCatalog = cachedStops;
+      } else {
+        try {
+          // Ensure first queries can still find common stops when filtered API is too strict.
+          localCatalog = await loadAllStops();
+        } catch (error) {
+          console.error("SEARCH WARMUP ERROR:", error);
+        }
+      }
+
+      if (Array.isArray(localCatalog) && localCatalog.length) {
+        const localMatches = collectLocalMatches(localCatalog, normalizedQuery);
 
         for (const stop of localMatches) {
           if (!combinedStops.has(stop.id)) {
@@ -390,10 +407,6 @@ export default async function handler(req, res) {
         }
 
         matches = sortMatchedStops(Array.from(combinedStops.values()), normalizedQuery);
-      } else {
-        loadAllStops().catch((error) => {
-          console.error("SEARCH WARMUP ERROR:", error);
-        });
       }
     }
 
