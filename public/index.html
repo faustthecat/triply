@@ -282,6 +282,59 @@
       margin-top: 16px;
     }
 
+    .transport-filter {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(15, 118, 110, 0.16);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .transport-filter-label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0b4a45;
+    }
+
+    .transport-filter-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .transport-filter-option {
+      position: relative;
+    }
+
+    .transport-filter-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .transport-filter-option span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border: 1px solid rgba(15, 118, 110, 0.18);
+      border-radius: 999px;
+      background: #fff;
+      color: #0f5e57;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+    }
+
+    .transport-filter-option input:checked + span {
+      border-color: rgba(15, 118, 110, 0.45);
+      background: #dbf4ef;
+      color: #0b4a45;
+    }
+
     .location-controls .field {
       margin-bottom: 0;
     }
@@ -351,6 +404,165 @@
       border-radius: 16px;
       background: #eef8f4;
       color: var(--accent-strong);
+    }
+
+    .current-stop-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .current-stop-row .current-stop {
+      flex: 1 1 280px;
+      margin: 0;
+    }
+
+    .favorite-stop-button {
+      padding: 10px 14px;
+      background: #f7efe0;
+      color: #8a4b08;
+      border: 1px solid rgba(180, 83, 9, 0.18);
+    }
+
+    .favorite-stop-button:hover {
+      background: #f5e4c8;
+    }
+
+    .favorite-stop-button.is-active {
+      background: #b45309;
+      color: #fff;
+    }
+
+    .favorites-panel {
+      margin: 0 0 16px;
+      padding: 14px 16px;
+      border: 1px solid rgba(180, 83, 9, 0.16);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fff8ef 0%, #fffcf6 100%);
+    }
+
+    .favorites-panel[hidden] {
+      display: none;
+    }
+
+    .favorites-title {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      color: #8a4b08;
+    }
+
+    .favorite-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .favorite-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(180, 83, 9, 0.18);
+      background: #fff;
+      color: #7c3f07;
+    }
+
+    .favorite-chip-label {
+      font-weight: 700;
+    }
+
+    .favorite-chip-remove {
+      padding: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(180, 83, 9, 0.1);
+      color: #8a4b08;
+      font-weight: 700;
+    }
+
+    .favorite-chip-remove:hover {
+      background: rgba(180, 83, 9, 0.18);
+    }
+
+    .departure-item {
+      border-left: 5px solid #cbd5e1;
+      transition: border-color 120ms ease, background 120ms ease;
+    }
+
+    .delay-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1;
+      vertical-align: middle;
+    }
+
+    .departure-item.delay-status-early {
+      border-left-color: #2563eb;
+      background: #eff6ff;
+    }
+
+    .departure-item.delay-status-early .delay-badge {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .delay-badge.delay-status-early {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .departure-item.delay-status-on-time {
+      border-left-color: #16a34a;
+      background: #f0fdf4;
+    }
+
+    .departure-item.delay-status-on-time .delay-badge {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .delay-badge.delay-status-on-time {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .departure-item.delay-status-minor {
+      border-left-color: #d97706;
+      background: #fff7ed;
+    }
+
+    .departure-item.delay-status-minor .delay-badge {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .delay-badge.delay-status-minor {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .departure-item.delay-status-major {
+      border-left-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    .departure-item.delay-status-major .delay-badge {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .delay-badge.delay-status-major {
+      background: #fee2e2;
+      color: #b91c1c;
     }
 
     .advanced {
@@ -643,6 +855,12 @@
       display: none;
     }
 
+    .leaflet-div-icon.vehicle-marker-icon {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+
     .vehicle-marker {
       position: relative;
       width: 30px;
@@ -672,6 +890,42 @@
       border: 2px solid #b45309;
       background: #f59e0b;
       box-shadow: 0 2px 5px rgba(15, 23, 42, 0.18);
+    }
+
+    .vehicle-marker.delay-status-early .vehicle-marker-arrow {
+      border-bottom-color: #2563eb;
+    }
+
+    .vehicle-marker.delay-status-early .vehicle-marker-dot {
+      border-color: #2563eb;
+      background: #60a5fa;
+    }
+
+    .vehicle-marker.delay-status-on-time .vehicle-marker-arrow {
+      border-bottom-color: #16a34a;
+    }
+
+    .vehicle-marker.delay-status-on-time .vehicle-marker-dot {
+      border-color: #15803d;
+      background: #4ade80;
+    }
+
+    .vehicle-marker.delay-status-minor .vehicle-marker-arrow {
+      border-bottom-color: #d97706;
+    }
+
+    .vehicle-marker.delay-status-minor .vehicle-marker-dot {
+      border-color: #b45309;
+      background: #fb923c;
+    }
+
+    .vehicle-marker.delay-status-major .vehicle-marker-arrow {
+      border-bottom-color: #dc2626;
+    }
+
+    .vehicle-marker.delay-status-major .vehicle-marker-dot {
+      border-color: #b91c1c;
+      background: #f87171;
     }
 
     .muted {
@@ -739,6 +993,27 @@
                 <input id="departuresLimit" type="number" min="1" max="40" step="1" value="5" inputmode="numeric" />
               </div>
             </div>
+            <div class="transport-filter" aria-labelledby="transportFilterLabel">
+              <span id="transportFilterLabel" class="transport-filter-label">Zobrazit typy dopravy</span>
+              <div class="transport-filter-options">
+                <label class="transport-filter-option">
+                  <input type="checkbox" name="transportType" value="tram" checked />
+                  <span>🚋 Tramvaj</span>
+                </label>
+                <label class="transport-filter-option">
+                  <input type="checkbox" name="transportType" value="metro" checked />
+                  <span>🚇 Metro</span>
+                </label>
+                <label class="transport-filter-option">
+                  <input type="checkbox" name="transportType" value="bus" checked />
+                  <span>🚌 Autobus</span>
+                </label>
+                <label class="transport-filter-option">
+                  <input type="checkbox" name="transportType" value="trolleybus" checked />
+                  <span>🚎 Trolejbus</span>
+                </label>
+              </div>
+            </div>
             <div id="nearestLoader" class="nearest-loader" role="status" aria-live="polite" aria-hidden="true">
               <span class="nearest-loader-bus" aria-hidden="true">
                 <span class="nearest-loader-icon">🚌</span>
@@ -768,7 +1043,14 @@
 
       <section id="departuresPanel" class="panel" aria-labelledby="departures-heading">
         <h2 id="departures-heading">Odjezdy</h2>
-        <p id="currentStop" class="current-stop selected-stop muted">Zatím není vybraná žádná zastávka.</p>
+        <div class="current-stop-row">
+          <p id="currentStop" class="current-stop selected-stop muted">Zatím není vybraná žádná zastávka.</p>
+          <button id="favoriteStopButton" type="button" class="favorite-stop-button" hidden>☆ Přidat do oblíbených</button>
+        </div>
+        <div id="favoritesPanel" class="favorites-panel" hidden>
+          <h3 class="favorites-title">Oblíbené zastávky</h3>
+          <div id="favoriteStops" class="favorite-chip-list" aria-label="Oblíbené zastávky"></div>
+        </div>
         <div id="status" class="status" aria-live="polite"></div>
         <ul id="list" aria-label="Seznam odjezdů"></ul>
         <div id="stopMapPanel" class="stop-map-panel" hidden>
@@ -791,6 +1073,9 @@
     const status = document.getElementById("status");
     const searchStatus = document.getElementById("searchStatus");
     const currentStop = document.getElementById("currentStop");
+    const favoriteStopButton = document.getElementById("favoriteStopButton");
+    const favoritesPanel = document.getElementById("favoritesPanel");
+    const favoriteStops = document.getElementById("favoriteStops");
     const departuresPanel = document.getElementById("departuresPanel");
     const stopMapPanel = document.getElementById("stopMapPanel");
     const stopMapSummary = document.getElementById("stopMapSummary");
@@ -800,6 +1085,7 @@
     const nearestLoader = document.getElementById("nearestLoader");
     const nearestList = document.getElementById("nearestList");
     const nearestHeading = document.getElementById("nearestHeading");
+    const transportTypeInputs = Array.from(document.querySelectorAll('input[name="transportType"]'));
 
     let searchTimeout;
     let searchRequestId = 0;
@@ -812,6 +1098,139 @@
     let isRefreshingVehicles = false;
     let openPopupTripId = null;
     let isReplacingMapMarkers = false;
+    const FAVORITE_STOPS_STORAGE_KEY = "triply.favoriteStops";
+
+    function getCurrentStopDescriptor() {
+      const stopIds = String(currentStop.dataset.stopIds || "").trim();
+      const label = String(currentStop.dataset.label || "").trim();
+      const lat = Number(currentStop.dataset.lat);
+      const lon = Number(currentStop.dataset.lon);
+
+      if (!stopIds || !label || !Number.isFinite(lat) || !Number.isFinite(lon)) {
+        return null;
+      }
+
+      return {
+        id: stopIds,
+        ids: stopIds.split(",").map((item) => item.trim()).filter(Boolean),
+        label,
+        lat,
+        lon
+      };
+    }
+
+    function readFavoriteStops() {
+      try {
+        const rawValue = window.localStorage.getItem(FAVORITE_STOPS_STORAGE_KEY);
+        const parsed = JSON.parse(rawValue || "[]");
+
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+
+        return parsed.filter((item) => {
+          return (
+            item &&
+            typeof item.id === "string" &&
+            typeof item.label === "string" &&
+            Number.isFinite(Number(item.lat)) &&
+            Number.isFinite(Number(item.lon))
+          );
+        }).map((item) => ({
+          id: item.id,
+          ids: Array.isArray(item.ids) ? item.ids.filter(Boolean) : item.id.split(",").filter(Boolean),
+          label: item.label,
+          lat: Number(item.lat),
+          lon: Number(item.lon)
+        }));
+      } catch (error) {
+        console.error("FAVORITES READ ERROR:", error);
+        return [];
+      }
+    }
+
+    function writeFavoriteStops(stops) {
+      try {
+        window.localStorage.setItem(FAVORITE_STOPS_STORAGE_KEY, JSON.stringify(stops));
+      } catch (error) {
+        console.error("FAVORITES WRITE ERROR:", error);
+      }
+    }
+
+    function isCurrentStopFavorite() {
+      const current = getCurrentStopDescriptor();
+      if (!current) {
+        return false;
+      }
+
+      return readFavoriteStops().some((stop) => stop.id === current.id);
+    }
+
+    function updateFavoriteStopButton() {
+      const current = getCurrentStopDescriptor();
+
+      favoriteStopButton.hidden = !current;
+      if (!current) {
+        return;
+      }
+
+      const isFavorite = isCurrentStopFavorite();
+      favoriteStopButton.classList.toggle("is-active", isFavorite);
+      favoriteStopButton.textContent = isFavorite ? "★ Odebrat z oblíbených" : "☆ Přidat do oblíbených";
+    }
+
+    function renderFavoriteStops() {
+      const favorites = readFavoriteStops();
+      favoriteStops.innerHTML = "";
+      favoritesPanel.hidden = favorites.length === 0;
+
+      favorites.forEach((stop) => {
+        const chip = document.createElement("div");
+        chip.className = "favorite-chip";
+
+        const selectButton = document.createElement("button");
+        selectButton.type = "button";
+        selectButton.className = "secondary";
+        selectButton.textContent = "★ " + stop.label;
+
+        selectButton.addEventListener("click", () => {
+          applySelectedStop(stop, true);
+        });
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "favorite-chip-remove";
+        removeButton.setAttribute("aria-label", "Odebrat zastávku " + stop.label + " z oblíbených");
+        removeButton.textContent = "×";
+        removeButton.addEventListener("click", () => {
+          const nextFavorites = readFavoriteStops().filter((favorite) => favorite.id !== stop.id);
+          writeFavoriteStops(nextFavorites);
+          renderFavoriteStops();
+          updateFavoriteStopButton();
+        });
+
+        chip.appendChild(selectButton);
+        chip.appendChild(removeButton);
+        favoriteStops.appendChild(chip);
+      });
+    }
+
+    function toggleCurrentStopFavorite() {
+      const current = getCurrentStopDescriptor();
+      if (!current) {
+        return;
+      }
+
+      const favorites = readFavoriteStops();
+      const isFavorite = favorites.some((stop) => stop.id === current.id);
+      const nextFavorites = isFavorite
+        ? favorites.filter((stop) => stop.id !== current.id)
+        : [current].concat(favorites.filter((stop) => stop.id !== current.id)).slice(0, 8);
+
+      writeFavoriteStops(nextFavorites);
+      renderFavoriteStops();
+      updateFavoriteStopButton();
+    }
 
     function toStopIds(stop) {
       if (Array.isArray(stop?.ids) && stop.ids.length) {
@@ -909,7 +1328,7 @@
     }
 
     function formatStopName(stop) {
-      const name = stop?.name || stop?.fullName || stop?.id || "Neznámá zastávka";
+      const name = stop?.name || stop?.fullName || stop?.label || stop?.id || "Neznámá zastávka";
       return name + (stop?.isMetro ? " (M)" : "");
     }
 
@@ -920,6 +1339,74 @@
       currentStop.dataset.lon = Number.isFinite(lon) ? String(lon) : "";
       currentStop.textContent = "Vybraná zastávka: " + (label || "neznámá");
       currentStop.classList.remove("muted");
+      updateFavoriteStopButton();
+    }
+
+    function getSelectedTransportTypes() {
+      const selected = transportTypeInputs
+        .filter((input) => input.checked)
+        .map((input) => input.value);
+
+      return selected.length ? selected : ["tram", "metro", "bus", "trolleybus"];
+    }
+
+    function shouldIncludeDeparture(departure, selectedTypes = getSelectedTransportTypes()) {
+      const type = departure?.mapRouteType || getVehicleTypeKey(departure);
+      if (!selectedTypes.length) {
+        return true;
+      }
+
+      return selectedTypes.includes(type);
+    }
+
+    function inferStopLabelFromDepartures(departures, fallbackLabel) {
+      const candidateCounts = new Map();
+
+      departures.forEach((departure) => {
+        const candidate = String(
+          departure?.stop?.name ||
+            departure?.stop?.platform_name ||
+            departure?.trip?.origin_stop?.name ||
+            ""
+        ).trim();
+
+        if (!candidate) {
+          return;
+        }
+
+        candidateCounts.set(candidate, (candidateCounts.get(candidate) || 0) + 1);
+      });
+
+      const sortedCandidates = Array.from(candidateCounts.entries()).sort((a, b) => b[1] - a[1]);
+      return sortedCandidates[0]?.[0] || fallbackLabel;
+    }
+
+    function syncCurrentStopLabel(preferredLabel) {
+      const stopIds = String(currentStop.dataset.stopIds || "").trim();
+      const lat = Number(currentStop.dataset.lat);
+      const lon = Number(currentStop.dataset.lon);
+      const nextLabel = String(preferredLabel || currentStop.dataset.label || stopIds).trim();
+
+      if (!stopIds || !nextLabel) {
+        return;
+      }
+
+      setCurrentStop(stopIds, nextLabel, lat, lon);
+
+      const favorites = readFavoriteStops();
+      const nextFavorites = favorites.map((stop) => {
+        if (stop.id !== stopIds) {
+          return stop;
+        }
+
+        return {
+          ...stop,
+          label: nextLabel
+        };
+      });
+
+      writeFavoriteStops(nextFavorites);
+      renderFavoriteStops();
     }
 
     function clearStopMap() {
@@ -1052,10 +1539,11 @@
 
     function createVehicleMarkerIcon(vehicle) {
       const bearing = Number.isFinite(vehicle?.bearing) ? vehicle.bearing : 0;
+      const delayStatusClass = getDelayStatusClass(vehicle?.delayMinutes);
       return L.divIcon({
-        className: "",
+        className: "vehicle-marker-icon",
         html:
-          '<div class="vehicle-marker">' +
+          '<div class="vehicle-marker ' + delayStatusClass + '">' +
             '<div class="vehicle-marker-arrow" style="transform: rotate(' + bearing + 'deg);"></div>' +
             '<div class="vehicle-marker-dot"></div>' +
           "</div>",
@@ -1120,6 +1608,68 @@
       }
 
       return (value > 0 ? "+" : "") + value + " min";
+    }
+
+    function getDelayStatusClass(delayMinutes) {
+      if (!Number.isFinite(delayMinutes)) {
+        return "delay-status-minor";
+      }
+
+      if (delayMinutes < 0) {
+        return "delay-status-early";
+      }
+
+      if (delayMinutes <= 1) {
+        return "delay-status-on-time";
+      }
+
+      if (delayMinutes <= 4) {
+        return "delay-status-minor";
+      }
+
+      return "delay-status-major";
+    }
+
+    function getDelayStatusLabel(delayMinutes) {
+      if (!Number.isFinite(delayMinutes)) {
+        return "bez dat";
+      }
+
+      if (delayMinutes < 0) {
+        return "dříve";
+      }
+
+      if (delayMinutes <= 1) {
+        return "včas";
+      }
+
+      if (delayMinutes <= 4) {
+        return "malé zpoždění";
+      }
+
+      return "větší zpoždění";
+    }
+
+    function createDelayBadge(delayMinutes, fallbackLabel = "Bez dat o zpoždění") {
+      if (!Number.isFinite(delayMinutes)) {
+        return null;
+      }
+
+      const badge = document.createElement("span");
+      badge.className = "delay-badge";
+      badge.textContent = formatDelayMinutes(delayMinutes);
+      badge.title = fallbackLabel;
+      return badge;
+    }
+
+    function getDelayPopupHtml(delayMinutes) {
+      if (!Number.isFinite(delayMinutes)) {
+        return "";
+      }
+
+      const delayClass = getDelayStatusClass(delayMinutes);
+      const delayLabel = getDelayStatusLabel(delayMinutes);
+      return '<br>Zpoždění: <span class="delay-badge ' + delayClass + '">' + escapeHtml(formatDelayMinutes(delayMinutes)) + '</span> ' + escapeHtml(delayLabel);
     }
 
     function renderSelectedStopMap(stop, vehicles, options = {}) {
@@ -1193,9 +1743,7 @@
               ? "<br>Příští zastávka: " + escapeHtml(vehicle.nextStopName || vehicle.nextStopId)
               : "") +
             (vehicle.nextStopArrivalTime ? "<br>Příjízdí v: " + escapeHtml(formatPopupTime(vehicle.nextStopArrivalTime)) : "") +
-            (Number.isFinite(vehicle.delayMinutes)
-              ? "<br>Zpoždění: " + escapeHtml(formatDelayMinutes(vehicle.delayMinutes))
-              : "") +
+            getDelayPopupHtml(vehicle.delayMinutes) +
             (vehicle.lastUpdated ? "<br>Aktualizace: " + escapeHtml(vehicle.lastUpdated) : ""),
           { autoClose: false, closeOnClick: false }
         );
@@ -1726,12 +2274,15 @@
 
       departures.forEach((departure) => {
         const li = document.createElement("li");
+        li.className = "departure-item";
         const timestamp = getDepartureTimestamp(departure);
         const route = departure.route?.short_name || "Spoj";
         const headsign = getDepartureDirection(departure);
         const vehicleEmoji = getVehicleTypeEmoji(departure);
         const featureIcons = getDepartureFeatures(departure, vehicleEmoji);
         const delayLabel = getDepartureDelayLabel(departure);
+        const delayMinutes = getDepartureDelayMinutes(departure);
+        li.classList.add(getDelayStatusClass(delayMinutes));
 
         let formatted = "čas není k dispozici";
         if (timestamp) {
@@ -1744,7 +2295,7 @@
           }
         }
 
-        li.textContent =
+        const text =
           vehicleEmoji +
           " " +
           route +
@@ -1755,6 +2306,16 @@
           formatted +
           (delayLabel ? ", " + delayLabel : "") +
           ")";
+
+        const textNode = document.createElement("span");
+        textNode.textContent = text;
+        li.appendChild(textNode);
+
+        const delayBadge = createDelayBadge(delayMinutes, getDelayStatusLabel(delayMinutes));
+        if (delayBadge) {
+          li.appendChild(delayBadge);
+        }
+
         list.appendChild(li);
       });
     }
@@ -1802,6 +2363,7 @@
     async function load() {
       const stopId = String(currentStop.dataset.stopIds || "").trim();
       const limit = clampNumericInput(departuresLimit, 5, 1, 40);
+      const selectedTypes = getSelectedTransportTypes();
 
       if (!stopId) {
         setStatus("Nejdřív vyber zastávku.", true);
@@ -1810,11 +2372,7 @@
         return;
       }
       clearNearestStops();
-      const knownStopIds = currentStop.dataset.stopIds || "";
-      const currentLabel =
-        knownStopIds === stopId
-          ? currentStop.dataset.label || stopId
-          : stopId;
+      const currentLabel = String(currentStop.dataset.label || "").trim() || stopId;
       const stopLat = Number(currentStop.dataset.lat);
       const stopLon = Number(currentStop.dataset.lon);
       setCurrentStop(stopId, currentLabel, stopLat, stopLon);
@@ -1829,13 +2387,16 @@
             encodeURIComponent(String(limit)),
           "Nepodařilo se načíst odjezdy."
         );
-        const departures = enrichDeparturesForMap(normalizeDeparturesResponse(data)).sort((a, b) => {
+        const allDepartures = enrichDeparturesForMap(normalizeDeparturesResponse(data)).sort((a, b) => {
           const first = getDepartureTimestamp(a);
           const second = getDepartureTimestamp(b);
           const firstTime = first ? new Date(first).getTime() : Number.POSITIVE_INFINITY;
           const secondTime = second ? new Date(second).getTime() : Number.POSITIVE_INFINITY;
           return firstTime - secondTime;
         });
+        const inferredLabel = inferStopLabelFromDepartures(allDepartures, currentLabel);
+        syncCurrentStopLabel(inferredLabel);
+        const departures = allDepartures.filter((departure) => shouldIncludeDeparture(departure, selectedTypes));
 
         renderDepartures(departures);
         let vehicles = [];
@@ -1848,14 +2409,20 @@
           stop: {
             lat: stopLat,
             lon: stopLon,
-            label: currentLabel
+            label: inferredLabel
           },
           departures
         };
         renderSelectedStopMap(currentMapContext.stop, vehicles, { preserveView: false });
         startVehicleRefresh();
         departuresPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-        setStatus("Načteno " + departures.length + " " + pluralize(departures.length, "spoj", "spoje", "spojů") + ".");
+        setStatus(
+          "Načteno " +
+            departures.length +
+            " " +
+            pluralize(departures.length, "spoj", "spoje", "spojů") +
+            (departures.length !== allDepartures.length ? " po filtrování typů dopravy." : ".")
+        );
       } catch (error) {
         console.error("LOAD ERROR:", error);
         list.innerHTML = "";
@@ -2029,6 +2596,18 @@
     });
 
     nearestButton.addEventListener("click", loadNearest);
+    favoriteStopButton.addEventListener("click", toggleCurrentStopFavorite);
+    transportTypeInputs.forEach((input) => {
+      input.addEventListener("change", () => {
+        if (!transportTypeInputs.some((item) => item.checked)) {
+          input.checked = true;
+        }
+
+        if (currentStop.dataset.stopIds) {
+          load();
+        }
+      });
+    });
     nearestStopsLimit.addEventListener("change", () => {
       clampNumericInput(nearestStopsLimit, 5, 1, 20);
     });
@@ -2038,6 +2617,8 @@
         load();
       }
     });
+    renderFavoriteStops();
+    updateFavoriteStopButton();
     window.addEventListener("beforeunload", stopVehicleRefresh);
   </script>
 </body>
