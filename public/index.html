@@ -1279,6 +1279,16 @@
       return (distance / 1000).toFixed(1) + " km";
     }
 
+    function formatWalkingTime(distanceMeters) {
+      if (!Number.isFinite(distanceMeters) || distanceMeters < 0) {
+        return "";
+      }
+
+      const walkingSpeedMetersPerMinute = 80;
+      const minutes = Math.max(1, Math.round(distanceMeters / walkingSpeedMetersPerMinute));
+      return "cca " + minutes + " min pěšky";
+    }
+
     function formatCoordinate(value) {
       if (!Number.isFinite(value)) {
         return "";
@@ -1927,7 +1937,10 @@
 
         const distance = document.createElement("span");
         distance.className = "nearest-distance";
-        distance.textContent = formatDistance(stop.distance);
+        const formattedDistance = formatDistance(stop.distance);
+        const walkingTime = formatWalkingTime(stop.distance);
+        distance.textContent =
+          formattedDistance + (walkingTime ? " · " + walkingTime : "");
 
         li.appendChild(title);
         if (subtitle.textContent) {
